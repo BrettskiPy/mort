@@ -182,6 +182,12 @@ class Inventory(arcade.Sprite):
         self.mapped_carry_positions = self.mapped_carry_positions()
         self.mapped_slot_positions = self.mapped_slot_positions()
 
+    def position_icons(self, icon_list):
+        for i, icon in enumerate(icon_list):
+            icon.center_x = self.mapped_carry_positions[i]['x']
+            icon.center_y = self.mapped_carry_positions[i]['y']
+            icon.inv_pos = i
+
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
             arcade.draw_rectangle_outline(

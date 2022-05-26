@@ -1,9 +1,9 @@
 from armor import *
 from player import Player
 from gui import *
+from icon import *
 
 import arcade
-import requests
 
 
 class HomeView(arcade.View):
@@ -26,6 +26,7 @@ class HomeView(arcade.View):
         self.inventory_slot_list = None
         self.vault_list = None
         self.equipped_armor_list = None
+        self.icon_list = None
 
         # Sprite variables
         self.player = None
@@ -46,11 +47,17 @@ class HomeView(arcade.View):
         self.static_gui_list = arcade.SpriteList()
         self.right_side_button_list = arcade.SpriteList()
         self.equipped_armor_list = arcade.SpriteList()
+        self.icon_list = arcade.SpriteList()
 
         # Create sprites
         self.cursor_hand = HandCursor("assets/cursor/glove_point.png", CURSOR_SCALE)
         self.player = Player("assets/player.png", PLAYER_SCALE)
         self.player_list.append(self.player)
+
+        # FIXME this is for testing
+        for x in range(21):
+            self.icon_1 = Icon("assets/icons/test_helm.png", ICON_SCALE, "some cool hat")
+            self.icon_list.append(self.icon_1)
 
         self.item_1 = Head(
             "assets/armor/head/art_dragonhelm.png", HELMET_SCALE, self.player
@@ -67,7 +74,7 @@ class HomeView(arcade.View):
         self.portrait_frame = PortraitFrame(
             "assets/gui/portrait_frame/portrait_frame.png", PORTRAIT_PANEL_SCALE
         )
-        self.portrait = Portrait("assets/gui/portraits/test_female.png", PORTRAIT_SCALE)
+        self.portrait = Portrait("assets/gui/portraits/6.png", PORTRAIT_SCALE)
         self.background = arcade.load_texture(f"assets/background/4.png")
         self.generate_home_right_panel()
 
@@ -84,12 +91,14 @@ class HomeView(arcade.View):
         if self.inventory_window:
             self.inventory_window.draw(pixelated=True)
             self.inventory_window.display_positions()  # debugging visual
+            self.icon_list.draw(pixelated=True)
 
         if self.vault_window:
             self.vault_window.draw(pixelated=True)
             self.vault_window.display_positions()  # debugging visual
             self.vault_inventory_window.draw(pixelated=True)
             self.vault_inventory_window.display_positions()  # debugging visual
+            self.icon_list.draw(pixelated=True)
 
         for button in self.right_side_button_list:
             if button.state:
@@ -110,6 +119,7 @@ class HomeView(arcade.View):
         self.static_gui_list.update()
         self.right_side_button_list.update()
         self.equipped_armor_list.update()
+        self.icon_list.update()
 
         # Individual sprite updates
         self.cursor_hand.update()
@@ -186,6 +196,7 @@ class HomeView(arcade.View):
                 self.deactivate_all_buttons()
                 button.state = True
                 if button.description == "inventory":
+                    self.inventory_window.position_icons(self.icon_list)
                     self.inventory_display()
                 elif button.description == "vault":
                     self.vault_window_display()
@@ -266,6 +277,7 @@ class HomeView(arcade.View):
                 self.deactivate_all_windows()
                 self.deactivate_all_buttons()
                 self.inventory_display()
+                self.inventory_window.position_icons(self.icon_list)
 
         if key == arcade.key.V:
             if self.vault_window:
@@ -275,6 +287,7 @@ class HomeView(arcade.View):
                 self.deactivate_all_windows()
                 self.deactivate_all_buttons()
                 self.vault_window_display()
+                self.vault_inventory_window.position_icons(self.icon_list)
 
         if key == arcade.key.T:
             print("trade")
