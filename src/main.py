@@ -55,8 +55,10 @@ class HomeView(arcade.View):
         self.player_list.append(self.player)
 
         # FIXME this is for testing
-        for x in range(21):
+        for x in range(10):
             self.icon_1 = Icon("assets/icons/test_helm.png", ICON_SCALE, "some cool hat")
+            self.icon_list.append(self.icon_1)
+            self.icon_1 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
             self.icon_list.append(self.icon_1)
 
         self.item_1 = Head(
@@ -90,19 +92,22 @@ class HomeView(arcade.View):
 
         if self.inventory_window:
             self.inventory_window.draw(pixelated=True)
-            self.inventory_window.display_positions()  # debugging visual
+            # self.inventory_window.display_positions()  # debugging visual
             self.icon_list.draw(pixelated=True)
 
         if self.vault_window:
             self.vault_window.draw(pixelated=True)
-            self.vault_window.display_positions()  # debugging visual
+            # self.vault_window.display_positions()  # debugging visual
             self.vault_inventory_window.draw(pixelated=True)
-            self.vault_inventory_window.display_positions()  # debugging visual
+            # self.vault_inventory_window.display_positions()  # debugging visual
             self.icon_list.draw(pixelated=True)
 
         for button in self.right_side_button_list:
             if button.state:
                 button.display_clicked()
+
+        if self.cursor_hand.holding_icon:
+            self.cursor_hand.x()
 
         self.inventory_slot_list.draw(pixelated=True)
         self.vault_list.draw(pixelated=True)
@@ -122,7 +127,7 @@ class HomeView(arcade.View):
         self.icon_list.update()
 
         # Individual sprite updates
-        self.cursor_hand.update()
+        self.cursor_hand.on_update()
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
         self.set_cursor_position(x, y)
@@ -132,9 +137,17 @@ class HomeView(arcade.View):
         self.set_cursor_position(x, y)
         self.right_panel_onclick_actions()
 
+        collision = arcade.check_for_collision_with_list(self.cursor_hand, self.icon_list)
+        if collision:
+            self.cursor_hand.holding_icon = True
+            for icon in collision:
+                self.cursor_hand.icon_held = icon
+
+
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         self.cursor_hand = HandCursor("assets/cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(x, y)
+
 
     def set_cursor_position(self, x, y):
         self.cursor_hand.center_x = x
@@ -196,10 +209,11 @@ class HomeView(arcade.View):
                 self.deactivate_all_buttons()
                 button.state = True
                 if button.description == "inventory":
-                    self.inventory_window.position_icons(self.icon_list)
                     self.inventory_display()
+                    self.inventory_window.position_icons(self.icon_list)
                 elif button.description == "vault":
                     self.vault_window_display()
+                    self.vault_inventory_window.position_icons(self.icon_list)
                 elif button.description == "trade":
                     print("Trading")
                 elif button.description == "blacksmith":

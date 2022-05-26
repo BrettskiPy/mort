@@ -7,6 +7,13 @@ class HandCursor(arcade.Sprite):
     def __init__(self, filename, scale=CURSOR_SCALE):
         super().__init__(filename, scale)
         self.set_hit_box([[-14, 0], [-35, 40], [10, 10]])
+        self.holding_icon = False
+        self.icon_held = None
+
+    def x(self):
+        if self.holding_icon:
+            arcade.draw_lrwh_rectangle_textured(self.center_x - self.icon_held.width, self.center_y,
+                                                self.icon_held.width, self.icon_held.height, self.icon_held.texture)
 
 
 class Button(arcade.Sprite):

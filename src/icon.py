@@ -6,5 +6,5 @@ class Icon(arcade.Sprite):
         self.item_data = item_data
         self.inv_pos = None
 
-    def update(self):
-        arcade.draw_rectangle_outline(self.center_x, self.center_y, self.width, self.height, arcade.color.WHITE, 2)
+
+
