@@ -55,11 +55,16 @@ class HomeView(arcade.View):
         self.player_list.append(self.player)
 
         # FIXME this is for testing
-        for x in range(10):
-            self.icon_1 = Icon("assets/icons/test_helm.png", ICON_SCALE, "some cool hat")
+        for _ in range(5):
+            self.icon_1 = Icon(
+                "assets/icons/test_helm.png", ICON_SCALE, "some cool hat"
+            )
+            self.icon_1.set_inv_position(self.icon_list)
             self.icon_list.append(self.icon_1)
-            self.icon_1 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
-            self.icon_list.append(self.icon_1)
+            self.icon_2 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
+            self.icon_2.set_inv_position(self.icon_list)
+            self.icon_list.append(self.icon_2)
+        # self.icon_2.set_inv_position(self.icon_list)
 
         self.item_1 = Head(
             "assets/armor/head/art_dragonhelm.png", HELMET_SCALE, self.player
@@ -107,7 +112,7 @@ class HomeView(arcade.View):
                 button.display_clicked()
 
         if self.cursor_hand.holding_icon:
-            self.cursor_hand.x()
+            self.cursor_hand.grab_icon()
 
         self.inventory_slot_list.draw(pixelated=True)
         self.vault_list.draw(pixelated=True)
@@ -137,17 +142,41 @@ class HomeView(arcade.View):
         self.set_cursor_position(x, y)
         self.right_panel_onclick_actions()
 
-        collision = arcade.check_for_collision_with_list(self.cursor_hand, self.icon_list)
+        collision = arcade.check_for_collision_with_list(
+            self.cursor_hand, self.icon_list
+        )
         if collision:
             self.cursor_hand.holding_icon = True
             for icon in collision:
                 self.cursor_hand.icon_held = icon
 
-
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
+        if self.cursor_hand.icon_held:
+            collision = arcade.check_for_collision_with_list(
+                self.cursor_hand, self.icon_list
+            )
+            for icon in collision:
+                self.cursor_hand.icon_held.center_x, icon.center_x = (
+                    icon.center_x,
+                    self.cursor_hand.icon_held.center_x,
+                )
+                self.cursor_hand.icon_held.center_y, icon.center_y = (
+                    icon.center_y,
+                    self.cursor_hand.icon_held.center_y,
+                )
+                self.cursor_hand.icon_held.inv_pos, icon.inv_pos = (
+                    icon.inv_pos,
+                    self.cursor_hand.icon_held.inv_pos,
+                )
+                index1 = self.icon_list.index(self.cursor_hand.icon_held)
+                index2 = self.icon_list.index(icon)
+                self.icon_list[index1], self.icon_list[index2] = (
+                    self.icon_list[index1],
+                    self.icon_list[index2],
+                )
+
         self.cursor_hand = HandCursor("assets/cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(x, y)
-
 
     def set_cursor_position(self, x, y):
         self.cursor_hand.center_x = x
@@ -156,6 +185,16 @@ class HomeView(arcade.View):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
         self.window_key_router(key)
+
+        # FIXME key x is test
+        if key == arcade.key.X:
+            self.icon_2 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
+            self.icon_2.set_inv_position(self.icon_list)
+            self.icon_list.append(self.icon_2)
+            if self.inventory_window:
+                self.inventory_window.position_icons(self.icon_list)
+            if self.vault_inventory_window:
+                self.vault_inventory_window.position_icons(self.icon_list)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""

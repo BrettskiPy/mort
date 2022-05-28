@@ -10,10 +10,15 @@ class HandCursor(arcade.Sprite):
         self.holding_icon = False
         self.icon_held = None
 
-    def x(self):
+    def grab_icon(self):
         if self.holding_icon:
-            arcade.draw_lrwh_rectangle_textured(self.center_x - self.icon_held.width, self.center_y,
-                                                self.icon_held.width, self.icon_held.height, self.icon_held.texture)
+            arcade.draw_lrwh_rectangle_textured(
+                self.center_x - self.icon_held.width,
+                self.center_y,
+                self.icon_held.width,
+                self.icon_held.height,
+                self.icon_held.texture,
+            )
 
 
 class Button(arcade.Sprite):
@@ -190,10 +195,10 @@ class Inventory(arcade.Sprite):
         self.mapped_slot_positions = self.mapped_slot_positions()
 
     def position_icons(self, icon_list):
-        for i, icon in enumerate(icon_list):
-            icon.center_x = self.mapped_carry_positions[i]['x']
-            icon.center_y = self.mapped_carry_positions[i]['y']
-            icon.inv_pos = i
+        if icon_list:
+            for icon in icon_list:
+                icon.center_x = self.mapped_carry_positions[icon.inv_pos]["x"]
+                icon.center_y = self.mapped_carry_positions[icon.inv_pos]["y"]
 
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
