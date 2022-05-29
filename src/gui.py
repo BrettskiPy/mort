@@ -21,7 +21,7 @@ class HandCursor(arcade.Sprite):
             )
 
 
-class Button(arcade.Sprite):
+class MenuButton(arcade.Sprite):
     def __init__(self, description, filename, scale):
         super().__init__(filename, scale)
         self.description = description

@@ -2,6 +2,7 @@ from armor import *
 from player import Player
 from gui import *
 from icon import *
+from weapon import *
 
 import arcade
 
@@ -13,7 +14,7 @@ class HomeView(arcade.View):
         self.background = None
         self.time_of_day = 255
         self.daylight = True
-
+        
         # View variables
         self.current_cursor_posx = 0
         self.current_cursor_posy = 0
@@ -25,7 +26,15 @@ class HomeView(arcade.View):
         self.inventory_list = None
         self.inventory_slot_list = None
         self.vault_list = None
-        self.equipped_armor_list = None
+        # Equipped lists
+        self.equipped_helmet_list = None
+        self.equipped_body_list = None
+        self.equipped_legs_list = None
+        self.equipped_boots_list = None
+        self.equipped_gloves_list = None
+        self.equipped_main_hand_list = None
+        self.equipped_off_hand_list = None
+        # Icons lists
         self.icon_list = None
 
         # Sprite variables
@@ -46,7 +55,15 @@ class HomeView(arcade.View):
         self.player_list = arcade.SpriteList()
         self.static_gui_list = arcade.SpriteList()
         self.right_side_button_list = arcade.SpriteList()
-        self.equipped_armor_list = arcade.SpriteList()
+
+        self.equipped_helmet_list = arcade.SpriteList()
+        self.equipped_body_list = arcade.SpriteList()
+        self.equipped_legs_list = arcade.SpriteList()
+        self.equipped_boots_list = arcade.SpriteList()
+        self.equipped_gloves_list = arcade.SpriteList()
+        self.equipped_main_hand_list = arcade.SpriteList()
+        self.equipped_off_hand_list = arcade.SpriteList()
+
         self.icon_list = arcade.SpriteList()
 
         # Create sprites
@@ -54,28 +71,7 @@ class HomeView(arcade.View):
         self.player = Player("assets/player.png", PLAYER_SCALE)
         self.player_list.append(self.player)
 
-        # FIXME this is for testing
-        for _ in range(5):
-            self.icon_1 = Icon(
-                "assets/icons/test_helm.png", ICON_SCALE, "some cool hat"
-            )
-            self.icon_1.set_inv_position(self.icon_list)
-            self.icon_list.append(self.icon_1)
-            self.icon_2 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
-            self.icon_2.set_inv_position(self.icon_list)
-            self.icon_list.append(self.icon_2)
-        # self.icon_2.set_inv_position(self.icon_list)
-
-        self.item_1 = Head(
-            "assets/armor/head/art_dragonhelm.png", HELMET_SCALE, self.player
-        )
-        self.equipped_armor_list.append(self.item_1)
-        self.item_2 = Body(
-            "assets/armor/body/faerie_dragon_armor.png", BODY_SCALE, self.player
-        )
-        self.equipped_armor_list.append(self.item_2)
-        self.item_3 = Legs("assets/armor/legs/leg_armor_0.png", LEGS_SCALE, self.player)
-        self.equipped_armor_list.append(self.item_3)
+        self.generate_test_items() # item test creation
 
         # Generate GUI
         self.portrait_frame = PortraitFrame(
@@ -93,7 +89,14 @@ class HomeView(arcade.View):
         self.player_list.draw(pixelated=True)
         self.static_gui_list.draw(pixelated=True)
         self.right_side_button_list.draw(pixelated=True)
-        self.equipped_armor_list.draw(pixelated=True)
+
+        self.equipped_body_list.draw(pixelated=True)
+        self.equipped_helmet_list.draw(pixelated=True)
+        self.equipped_legs_list.draw(pixelated=True)
+        self.equipped_boots_list.draw(pixelated=True)
+        self.equipped_gloves_list.draw(pixelated=True)
+        self.equipped_main_hand_list.draw(pixelated=True)
+        self.equipped_off_hand_list.draw(pixelated=True)
 
         if self.inventory_window:
             self.inventory_window.draw(pixelated=True)
@@ -128,7 +131,14 @@ class HomeView(arcade.View):
         self.player_list.update()
         self.static_gui_list.update()
         self.right_side_button_list.update()
-        self.equipped_armor_list.update()
+
+        self.equipped_helmet_list.update()
+        self.equipped_body_list.update()
+        self.equipped_legs_list.update()
+        self.equipped_boots_list.update()
+        self.equipped_gloves_list.update()
+        self.equipped_main_hand_list.update()
+        self.equipped_off_hand_list.update()
         self.icon_list.update()
 
         # Individual sprite updates
@@ -226,7 +236,7 @@ class HomeView(arcade.View):
         buttons = ["inventory", "vault", "trade", "blacksmith", "portals", "fight"]
         height = 136
         for button in range(len(buttons)):
-            self.button = Button(
+            self.button = MenuButton(
                 buttons[button],
                 f"assets/gui/button/{buttons[button]}.png",
                 RIGHT_BUTTON_SCALE,
@@ -354,6 +364,41 @@ class HomeView(arcade.View):
         if key == arcade.key.F:
             print("fight")
 
+    def generate_test_items(self):
+        for _ in range(5):
+            self.icon_1 = Icon(
+                "assets/icons/test_helm.png", ICON_SCALE, "some cool hat"
+            )
+            self.icon_1.set_inv_position(self.icon_list)
+            self.icon_list.append(self.icon_1)
+            self.icon_2 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
+            self.icon_2.set_inv_position(self.icon_list)
+            self.icon_list.append(self.icon_2)
+
+        self.item_1 = Head(
+            "assets/armor/head/wizard_red.png", HELMET_SCALE, self.player
+        )
+        self.equipped_helmet_list.append(self.item_1)
+
+        self.item_2 = Body(
+            "assets/armor/body/coat_red.png", BODY_SCALE, self.player
+        )
+        self.equipped_body_list.append(self.item_2)
+
+        self.item_3 = Legs("assets/armor/legs/leg_armor_0.png", LEGS_SCALE, self.player)
+        self.equipped_legs_list.append(self.item_3)
+
+        self.item_4 = Gloves("assets/armor/gloves/glove_gray.png", GLOVES_SCALE, self.player)
+        self.equipped_gloves_list.append(self.item_4)
+
+        self.item_5 = Boots("assets/armor/boots/blue_gold.png", BOOTS_SCALE, self.player)
+        self.equipped_boots_list.append(self.item_5)
+
+        self.item_6 = MainHand("assets/weapons/main_hand/scythe_new.png", MAIN_HAND_SCALE, self.player)
+        self.equipped_main_hand_list.append(self.item_6)
+
+        self.item_7 = OffHand("assets/weapons/off_hand/shield_large_dd_dk.png", OFF_HAND_SCALE, self.player)
+        self.equipped_off_hand_list.append(self.item_7)
 
 class MyWindow(arcade.Window):
     def __init__(self):

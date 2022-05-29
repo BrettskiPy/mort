@@ -40,7 +40,7 @@ class Legs(arcade.Sprite):
             self.kill()
 
 
-class Boot(arcade.Sprite):
+class Boots(arcade.Sprite):
     def __init__(self, filename, scale, player):
         super().__init__(filename, scale)
         self.player = player
@@ -53,7 +53,7 @@ class Boot(arcade.Sprite):
             self.kill()
 
 
-class Glove(arcade.Sprite):
+class Gloves(arcade.Sprite):
     def __init__(self, filename, scale, player):
         super().__init__(filename, scale)
         self.player = player
