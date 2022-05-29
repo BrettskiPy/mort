@@ -153,45 +153,32 @@ class HomeView(arcade.View):
         self.set_cursor_position(x, y)
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        self.cursor_hand = HandCursor(":assets:cursor/glove_grab.png", CURSOR_SCALE)
-        self.set_cursor_position(x, y)
-        self.right_panel_onclick_actions()
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            self.cursor_hand = HandCursor(":assets:cursor/glove_grab.png", CURSOR_SCALE)
+            self.set_cursor_position(x, y)
+            self.right_panel_onclick_actions()
 
-        collision = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.icon_list
-        )
-        if collision:
-            self.cursor_hand.holding_icon = True
-            for icon in collision:
-                self.cursor_hand.icon_held = icon
-
-    def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
-        if self.cursor_hand.icon_held:
             collision = arcade.check_for_collision_with_list(
                 self.cursor_hand, self.icon_list
             )
-            for icon in collision:
-                self.cursor_hand.icon_held.center_x, icon.center_x = (
-                    icon.center_x,
-                    self.cursor_hand.icon_held.center_x,
-                )
-                self.cursor_hand.icon_held.center_y, icon.center_y = (
-                    icon.center_y,
-                    self.cursor_hand.icon_held.center_y,
-                )
-                self.cursor_hand.icon_held.inv_pos, icon.inv_pos = (
-                    icon.inv_pos,
-                    self.cursor_hand.icon_held.inv_pos,
-                )
-                index1 = self.icon_list.index(self.cursor_hand.icon_held)
-                index2 = self.icon_list.index(icon)
-                self.icon_list[index1], self.icon_list[index2] = (
-                    self.icon_list[index1],
-                    self.icon_list[index2],
-                )
+            if collision:
+                self.cursor_hand.holding_icon = True
+                for icon in collision:
+                    self.cursor_hand.icon_held = icon
+        elif button == arcade.MOUSE_BUTTON_RIGHT:
+            print("Attempting equip")
+            collision = arcade.check_for_collision_with_list(
+                self.cursor_hand, self.icon_list
+            )
+            if collision:
+                for icon in collision:
+                    self.equip_item_to_player(icon)
 
-        self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
-        self.set_cursor_position(x, y)
+    def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            self.icon_drop_swap(x, y)
+        elif button == arcade.MOUSE_BUTTON_RIGHT:
+            pass
 
     def set_cursor_position(self, x, y):
         self.cursor_hand.center_x = x
@@ -203,12 +190,11 @@ class HomeView(arcade.View):
 
         # FIXME key x is test
         if key == arcade.key.X:
-            self.icon_2 = Icon(":assets:icons/test_hat.png", ICON_SCALE, "some cool hat")
-            self.icon_2.set_inv_position(self.icon_list)
-            self.icon_list.append(self.icon_2)
+            print("Generate inventory item")
+            self.generate_test_inventory_item()
             if self.inventory_window:
                 self.inventory_window.position_icons(self.icon_list)
-            if self.vault_inventory_window:
+            elif self.vault_inventory_window:
                 self.vault_inventory_window.position_icons(self.icon_list)
 
     def on_key_release(self, key, modifiers):
@@ -369,43 +355,55 @@ class HomeView(arcade.View):
         if key == arcade.key.F:
             print("fight")
 
-    def generate_test_items(self):
-        for _ in range(5):
-            self.icon_1 = Icon(
-                ":assets:icons/test_helm.png", ICON_SCALE, "some cool hat"
+    def icon_drop_swap(self, cursor_x, cursor_y):
+        if self.cursor_hand.icon_held:
+            collision = arcade.check_for_collision_with_list(
+                self.cursor_hand, self.icon_list
             )
-            self.icon_1.set_inv_position(self.icon_list)
-            self.icon_list.append(self.icon_1)
-            self.icon_2 = Icon(":assets:icons/test_hat.png", ICON_SCALE, "some cool hat")
-            self.icon_2.set_inv_position(self.icon_list)
-            self.icon_list.append(self.icon_2)
+            for icon in collision:
+                self.cursor_hand.icon_held.center_x, icon.center_x = (
+                    icon.center_x,
+                    self.cursor_hand.icon_held.center_x,
+                )
+                self.cursor_hand.icon_held.center_y, icon.center_y = (
+                    icon.center_y,
+                    self.cursor_hand.icon_held.center_y,
+                )
+                self.cursor_hand.icon_held.inv_pos, icon.inv_pos = (
+                    icon.inv_pos,
+                    self.cursor_hand.icon_held.inv_pos,
+                )
+                index1 = self.icon_list.index(self.cursor_hand.icon_held)
+                index2 = self.icon_list.index(icon)
+                self.icon_list[index1], self.icon_list[index2] = (
+                    self.icon_list[index1],
+                    self.icon_list[index2],
+                )
 
+        self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
+        self.set_cursor_position(cursor_x, cursor_y)
+
+    def equip_item_to_player(self, icon):
+        if icon.item_data.get('piece') == 'Head':
+            self.equipped_helmet_list.append(icon.item_data.get('item'))
+            print(f'Killed {icon}')
+            icon.kill()
+
+    # --------------------------------- Item generation functions used for testing -------------------
+    def generate_test_inventory_item(self):
         self.item_1 = Head(
-            ":assets:armor/head/wizard_red.png", HELMET_SCALE, self.player
+            ":assets:armor/head/helm_plume.png", HELMET_SCALE, ":assets:icons/test_helm.png", self.player
         )
-        self.equipped_helmet_list.append(self.item_1)
-
-        self.item_2 = Body(
-            ":assets:armor/body/coat_red.png", BODY_SCALE, self.player
+        self.icon_1 = Icon(
+            self.item_1.equip_image, ICON_SCALE,
+            {'piece': type(self.item_1).__name__, 'item': self.item_1}, self.icon_list
         )
-        self.equipped_body_list.append(self.item_2)
+        self.icon_list.append(self.icon_1)
 
-        self.item_3 = Legs(":assets:armor/legs/leg_armor_0.png", LEGS_SCALE, self.player)
-        self.equipped_legs_list.append(self.item_3)
+    def generate_test_items(self):
+        pass
 
-        self.item_4 = Gloves(":assets:armor/gloves/glove_gray.png", GLOVES_SCALE, self.player)
-        self.equipped_gloves_list.append(self.item_4)
-
-        self.item_5 = Boots(":assets:armor/boots/blue_gold.png", BOOTS_SCALE, self.player)
-        self.equipped_boots_list.append(self.item_5)
-
-        self.item_6 = MainHand(":assets:weapons/main_hand/scythe_new.png", MAIN_HAND_SCALE, self.player)
-        self.equipped_main_hand_list.append(self.item_6)
-
-        self.item_7 = OffHand(":assets:weapons/off_hand/shield_large_dd_dk.png", OFF_HAND_SCALE, self.player)
-        self.equipped_off_hand_list.append(self.item_7)
-
-class MyWindow(arcade.Window):
+class GameWindow(arcade.Window):
     def __init__(self):
         super().__init__(GAME_WIDTH, GAME_HEIGHT, WINDOW_TITLE, resizable=True)
         self.views = {}
@@ -463,8 +461,7 @@ class MyWindow(arcade.Window):
 
 def main():
     arcade.resources.add_resource_handle("assets", ASSETS_PATH)
-
-    window = MyWindow()
+    window = GameWindow()
     window.center_window()
     home_view = HomeView()
     home_view.setup()

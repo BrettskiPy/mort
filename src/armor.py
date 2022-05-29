@@ -1,9 +1,12 @@
 import arcade
 
 
+
 class Head(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, scale, equip_image, player):
         super().__init__(filename, scale)
+        self.filename = filename
+        self.equip_image = equip_image
         self.player = player
 
     def update(self):
@@ -15,8 +18,9 @@ class Head(arcade.Sprite):
 
 
 class Body(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, scale, equip_image, player):
         super().__init__(filename, scale)
+        self.equip_image = equip_image
         self.player = player
 
     def update(self):
@@ -28,8 +32,9 @@ class Body(arcade.Sprite):
 
 
 class Legs(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, scale, equip_image, player):
         super().__init__(filename, scale)
+        self.equip_image = equip_image
         self.player = player
 
     def update(self):
@@ -41,8 +46,9 @@ class Legs(arcade.Sprite):
 
 
 class Boots(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, scale, equip_image, player):
         super().__init__(filename, scale)
+        self.equip_image = equip_image
         self.player = player
 
     def update(self):
@@ -54,8 +60,9 @@ class Boots(arcade.Sprite):
 
 
 class Gloves(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, scale, equip_image, player):
         super().__init__(filename, scale)
+        self.equip_image = equip_image
         self.player = player
 
     def update(self):
@@ -67,8 +74,9 @@ class Gloves(arcade.Sprite):
 
 
 class Cloak(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, scale, equip_image, player):
         super().__init__(filename, scale)
+        self.equip_image = equip_image
         self.player = player
 
     def update(self):

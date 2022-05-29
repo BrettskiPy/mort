@@ -2,13 +2,15 @@ import arcade
 
 
 class Icon(arcade.Sprite):
-    def __init__(self, filename, scale, item_data):
+    def __init__(self, filename, scale, item_data, icon_list):
         super().__init__(filename, scale)
         self.item_data = item_data
         self.inv_pos = 0
+        self.icon_list = icon_list
+        self.set_inv_position()
 
-    def set_inv_position(self, icon_list):
-        sorted_inv_list = [icon.inv_pos for icon in icon_list]
+    def set_inv_position(self):
+        sorted_inv_list = [icon.inv_pos for icon in self.icon_list]
         sorted_inv_list.sort()
         if len(sorted_inv_list) == 1:
             self.inv_pos = 1
