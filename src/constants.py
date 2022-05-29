@@ -1,8 +1,11 @@
+from pathlib import Path
+
 # Server
 SERVER = "http://127.0.0.1:8000"
 
 # Menu
-MENU_ASSETS = "assets/gui/icons"
+
+ASSETS_PATH = (Path(__file__).parent / "assets").resolve()
 
 # Player
 HELMET_SCALE = 3
