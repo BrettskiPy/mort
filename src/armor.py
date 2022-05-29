@@ -1,7 +1,6 @@
 import arcade
 
 
-
 class Head(arcade.Sprite):
     def __init__(self, filename, scale, equip_image, player):
         super().__init__(filename, scale)

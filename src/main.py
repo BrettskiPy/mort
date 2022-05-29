@@ -15,7 +15,7 @@ class HomeView(arcade.View):
         self.background = None
         self.time_of_day = 255
         self.daylight = True
-        
+
         # View variables
         self.current_cursor_posx = 0
         self.current_cursor_posy = 0
@@ -72,7 +72,7 @@ class HomeView(arcade.View):
         self.player = Player(":assets:player.png", PLAYER_SCALE)
         self.player_list.append(self.player)
 
-        self.generate_test_items() # item test creation
+        self.generate_test_items()  # item test creation
 
         # Generate GUI
         self.portrait_frame = PortraitFrame(
@@ -384,24 +384,30 @@ class HomeView(arcade.View):
         self.set_cursor_position(cursor_x, cursor_y)
 
     def equip_item_to_player(self, icon):
-        if icon.item_data.get('piece') == 'Head':
-            self.equipped_helmet_list.append(icon.item_data.get('item'))
-            print(f'Killed {icon}')
+        if icon.item_data.get("piece") == "Head":
+            self.equipped_helmet_list.append(icon.item_data.get("item"))
+            print(f"Killed {icon}")
             icon.kill()
 
     # --------------------------------- Item generation functions used for testing -------------------
     def generate_test_inventory_item(self):
         self.item_1 = Head(
-            ":assets:armor/head/helm_plume.png", HELMET_SCALE, ":assets:icons/test_helm.png", self.player
+            ":assets:armor/head/helm_plume.png",
+            HELMET_SCALE,
+            ":assets:icons/test_helm.png",
+            self.player,
         )
         self.icon_1 = Icon(
-            self.item_1.equip_image, ICON_SCALE,
-            {'piece': type(self.item_1).__name__, 'item': self.item_1}, self.icon_list
+            self.item_1.equip_image,
+            ICON_SCALE,
+            {"piece": type(self.item_1).__name__, "item": self.item_1},
+            self.icon_list,
         )
         self.icon_list.append(self.icon_1)
 
     def generate_test_items(self):
         pass
+
 
 class GameWindow(arcade.Window):
     def __init__(self):
