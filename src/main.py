@@ -3,9 +3,9 @@ from player import Player
 from gui import *
 from icon import *
 from weapon import *
-import constants
 
 import arcade
+from arcade import key
 
 
 class HomeView(arcade.View):
@@ -84,6 +84,8 @@ class HomeView(arcade.View):
 
     def on_draw(self):
         self.clear()
+        self.window.apply_game_camera()
+
         self.timed_lighting_with_background()
         self.portrait.draw(pixelated=True)
         self.portrait_frame.draw(pixelated=True)
@@ -120,6 +122,8 @@ class HomeView(arcade.View):
 
         self.inventory_slot_list.draw(pixelated=True)
         self.vault_list.draw(pixelated=True)
+
+        # self.window.apply_gui_camera()
         self.cursor_hand.draw()
 
         # self.cursor_hand.draw_hit_box(color=arcade.color.RED, line_thickness=1)
@@ -223,8 +227,8 @@ class HomeView(arcade.View):
         arcade.draw_lrwh_rectangle_textured(
             0,
             0,
-            SCREEN_WIDTH,
-            SCREEN_HEIGHT,
+            GAME_WIDTH,
+            GAME_HEIGHT,
             self.background,
             alpha=round(self.time_of_day),
         )
@@ -242,8 +246,8 @@ class HomeView(arcade.View):
                 f":assets:gui/button/{buttons[button]}.png",
                 RIGHT_BUTTON_SCALE,
             )
-            self.button.center_x = SCREEN_WIDTH - 29
-            self.button.center_y = SCREEN_HEIGHT / 2 + height
+            self.button.center_x = GAME_WIDTH - 29
+            self.button.center_y = GAME_HEIGHT / 2 + height
             self.right_side_button_list.append(self.button)
             height -= 54
 
@@ -274,8 +278,8 @@ class HomeView(arcade.View):
                     print("fighting")
 
     def position_home_right_panel(self):
-        self.right_side_bar.center_x = SCREEN_WIDTH - 30
-        self.right_side_bar.center_y = SCREEN_HEIGHT / 2
+        self.right_side_bar.center_x = GAME_WIDTH - 30
+        self.right_side_bar.center_y = GAME_HEIGHT / 2
 
     def inventory_display(self):
         self.inventory_window = Inventory(
@@ -289,9 +293,9 @@ class HomeView(arcade.View):
 
     def position_inventory(self):
         self.inventory_window.center_x = (
-            SCREEN_WIDTH - self.inventory_window.width / 2 - 65
+            GAME_WIDTH - self.inventory_window.width / 2 - 65
         )
-        self.inventory_window.center_y = SCREEN_HEIGHT / 2
+        self.inventory_window.center_y = GAME_HEIGHT / 2
 
     def vault_window_display(self):
         self.vault_window = Vault(":assets:gui/vault.png", INGAME_WINDOW_SCALE)
@@ -301,8 +305,8 @@ class HomeView(arcade.View):
         self.position_vault_inventory_window()
 
     def position_vault_window(self):
-        self.vault_window.center_x = SCREEN_WIDTH - self.vault_window.width / 2 - 65
-        self.vault_window.center_y = SCREEN_HEIGHT / 2
+        self.vault_window.center_x = GAME_WIDTH - self.vault_window.width / 2 - 65
+        self.vault_window.center_y = GAME_HEIGHT / 2
 
     def vault_window_deactivate(self):
         self.vault_window = None
@@ -317,7 +321,7 @@ class HomeView(arcade.View):
         self.vault_inventory_window.center_x = (
             self.vault_inventory_window.width / 2 + 40
         )
-        self.vault_inventory_window.center_y = SCREEN_HEIGHT / 2
+        self.vault_inventory_window.center_y = GAME_HEIGHT / 2
 
     def vault_inventory_window_deactivate(self):
         self.vault_inventory_window = None
@@ -403,12 +407,62 @@ class HomeView(arcade.View):
 
 class MyWindow(arcade.Window):
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=False)
+        super().__init__(GAME_WIDTH, GAME_HEIGHT, WINDOW_TITLE, resizable=True)
         self.views = {}
+        self.set_min_size(GAME_WIDTH, GAME_HEIGHT)
+        self._fullscreen = False
+
+    def on_key_press(self, symbol: int, modifiers: int):
+        if symbol == key.F11:
+            if self.fullscreen:
+                # Will revert back to window mode using the window's
+                # original size (before fullscreen)
+                self.set_fullscreen(False)
+            else:
+                # By default this enters fullscreen with the primary
+                # monitor's native screen size
+                self.set_fullscreen(True)
+
+    def apply_game_camera(self):
+        """
+        Apply a camera for the game contents.
+        This is temporary until we have a proper camera.
+        """
+        # Set the viewport taking aspect ratio into account.
+        # We add black borders horizontally and vertically if needed
+        expected_width = int(self.height * GAME_ASPECT_RATIO)
+        expected_height = int(expected_width / GAME_ASPECT_RATIO)
+
+        if expected_width > self.width:
+            expected_width = self.width
+            expected_height = int(expected_width / GAME_ASPECT_RATIO)
+
+        blank_space_x = self.width - expected_width
+        blank_space_y = self.height - expected_height
+
+        self.ctx.viewport = (
+            blank_space_x // 2,
+            blank_space_y // 2,
+            expected_width,
+            expected_height,
+        )
+
+        # The projection is constant regardless if window size.
+        # We're simply projecting the same geometry into a larger screen area.
+        self.ctx.projection_2d = 0, GAME_WIDTH, 0, GAME_HEIGHT
+
+    def apply_gui_camera(self):
+        """
+        Apply a camera covering the entire screen regardless
+        of game size. This was mainly intended for the mouse cursor
+        and possibly drawing some nice border graphics when needed.
+        """
+        self.ctx.viewport = 0, 0, self.width, self.height
+        self.ctx.projection_2d = 0, self.width, 0, self.height
 
 
 def main():
-    arcade.resources.add_resource_handle("assets", constants.ASSETS_PATH)
+    arcade.resources.add_resource_handle("assets", ASSETS_PATH)
 
     window = MyWindow()
     window.center_window()
