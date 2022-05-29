@@ -3,6 +3,7 @@ from player import Player
 from gui import *
 from icon import *
 from weapon import *
+import constants
 
 import arcade
 
@@ -67,18 +68,18 @@ class HomeView(arcade.View):
         self.icon_list = arcade.SpriteList()
 
         # Create sprites
-        self.cursor_hand = HandCursor("assets/cursor/glove_point.png", CURSOR_SCALE)
-        self.player = Player("assets/player.png", PLAYER_SCALE)
+        self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
+        self.player = Player(":assets:player.png", PLAYER_SCALE)
         self.player_list.append(self.player)
 
         self.generate_test_items() # item test creation
 
         # Generate GUI
         self.portrait_frame = PortraitFrame(
-            "assets/gui/portrait_frame/portrait_frame.png", PORTRAIT_PANEL_SCALE
+            ":assets:gui/portrait_frame/portrait_frame.png", PORTRAIT_PANEL_SCALE
         )
-        self.portrait = Portrait("assets/gui/portraits/6.png", PORTRAIT_SCALE)
-        self.background = arcade.load_texture(f"assets/background/4.png")
+        self.portrait = Portrait(":assets:gui/portraits/6.png", PORTRAIT_SCALE)
+        self.background = arcade.load_texture(":assets:background/4.png")
         self.generate_home_right_panel()
 
     def on_draw(self):
@@ -148,7 +149,7 @@ class HomeView(arcade.View):
         self.set_cursor_position(x, y)
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
-        self.cursor_hand = HandCursor("assets/cursor/glove_grab.png", CURSOR_SCALE)
+        self.cursor_hand = HandCursor(":assets:cursor/glove_grab.png", CURSOR_SCALE)
         self.set_cursor_position(x, y)
         self.right_panel_onclick_actions()
 
@@ -185,7 +186,7 @@ class HomeView(arcade.View):
                     self.icon_list[index2],
                 )
 
-        self.cursor_hand = HandCursor("assets/cursor/glove_point.png", CURSOR_SCALE)
+        self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(x, y)
 
     def set_cursor_position(self, x, y):
@@ -198,7 +199,7 @@ class HomeView(arcade.View):
 
         # FIXME key x is test
         if key == arcade.key.X:
-            self.icon_2 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
+            self.icon_2 = Icon(":assets:icons/test_hat.png", ICON_SCALE, "some cool hat")
             self.icon_2.set_inv_position(self.icon_list)
             self.icon_list.append(self.icon_2)
             if self.inventory_window:
@@ -229,7 +230,7 @@ class HomeView(arcade.View):
         )
 
     def generate_home_right_panel(self):
-        self.right_side_bar = arcade.Sprite("assets/gui/right_side_bar.png", 1.5)
+        self.right_side_bar = arcade.Sprite(":assets:gui/right_side_bar.png", 1.5)
         self.position_home_right_panel()
         self.static_gui_list.append(self.right_side_bar)
 
@@ -238,7 +239,7 @@ class HomeView(arcade.View):
         for button in range(len(buttons)):
             self.button = MenuButton(
                 buttons[button],
-                f"assets/gui/button/{buttons[button]}.png",
+                f":assets:gui/button/{buttons[button]}.png",
                 RIGHT_BUTTON_SCALE,
             )
             self.button.center_x = SCREEN_WIDTH - 29
@@ -278,7 +279,7 @@ class HomeView(arcade.View):
 
     def inventory_display(self):
         self.inventory_window = Inventory(
-            "assets/gui/inventory.png", INGAME_WINDOW_SCALE
+            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
         )
         self.position_inventory()
         self.right_side_button_list[0].state = True
@@ -293,7 +294,7 @@ class HomeView(arcade.View):
         self.inventory_window.center_y = SCREEN_HEIGHT / 2
 
     def vault_window_display(self):
-        self.vault_window = Vault("assets/gui/vault.png", INGAME_WINDOW_SCALE)
+        self.vault_window = Vault(":assets:gui/vault.png", INGAME_WINDOW_SCALE)
         self.position_vault_window()
         self.right_side_button_list[1].state = True
         self.vault_inventory_window_display()
@@ -308,7 +309,7 @@ class HomeView(arcade.View):
 
     def vault_inventory_window_display(self):
         self.vault_inventory_window = Inventory(
-            "assets/gui/inventory.png", INGAME_WINDOW_SCALE, vault_inventory=True
+            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE, vault_inventory=True
         )
         self.position_vault_inventory_window()
 
@@ -367,37 +368,37 @@ class HomeView(arcade.View):
     def generate_test_items(self):
         for _ in range(5):
             self.icon_1 = Icon(
-                "assets/icons/test_helm.png", ICON_SCALE, "some cool hat"
+                ":assets:icons/test_helm.png", ICON_SCALE, "some cool hat"
             )
             self.icon_1.set_inv_position(self.icon_list)
             self.icon_list.append(self.icon_1)
-            self.icon_2 = Icon("assets/icons/test_hat.png", ICON_SCALE, "some cool hat")
+            self.icon_2 = Icon(":assets:icons/test_hat.png", ICON_SCALE, "some cool hat")
             self.icon_2.set_inv_position(self.icon_list)
             self.icon_list.append(self.icon_2)
 
         self.item_1 = Head(
-            "assets/armor/head/wizard_red.png", HELMET_SCALE, self.player
+            ":assets:armor/head/wizard_red.png", HELMET_SCALE, self.player
         )
         self.equipped_helmet_list.append(self.item_1)
 
         self.item_2 = Body(
-            "assets/armor/body/coat_red.png", BODY_SCALE, self.player
+            ":assets:armor/body/coat_red.png", BODY_SCALE, self.player
         )
         self.equipped_body_list.append(self.item_2)
 
-        self.item_3 = Legs("assets/armor/legs/leg_armor_0.png", LEGS_SCALE, self.player)
+        self.item_3 = Legs(":assets:armor/legs/leg_armor_0.png", LEGS_SCALE, self.player)
         self.equipped_legs_list.append(self.item_3)
 
-        self.item_4 = Gloves("assets/armor/gloves/glove_gray.png", GLOVES_SCALE, self.player)
+        self.item_4 = Gloves(":assets:armor/gloves/glove_gray.png", GLOVES_SCALE, self.player)
         self.equipped_gloves_list.append(self.item_4)
 
-        self.item_5 = Boots("assets/armor/boots/blue_gold.png", BOOTS_SCALE, self.player)
+        self.item_5 = Boots(":assets:armor/boots/blue_gold.png", BOOTS_SCALE, self.player)
         self.equipped_boots_list.append(self.item_5)
 
-        self.item_6 = MainHand("assets/weapons/main_hand/scythe_new.png", MAIN_HAND_SCALE, self.player)
+        self.item_6 = MainHand(":assets:weapons/main_hand/scythe_new.png", MAIN_HAND_SCALE, self.player)
         self.equipped_main_hand_list.append(self.item_6)
 
-        self.item_7 = OffHand("assets/weapons/off_hand/shield_large_dd_dk.png", OFF_HAND_SCALE, self.player)
+        self.item_7 = OffHand(":assets:weapons/off_hand/shield_large_dd_dk.png", OFF_HAND_SCALE, self.player)
         self.equipped_off_hand_list.append(self.item_7)
 
 class MyWindow(arcade.Window):
@@ -407,6 +408,8 @@ class MyWindow(arcade.Window):
 
 
 def main():
+    arcade.resources.add_resource_handle("assets", constants.ASSETS_PATH)
+
     window = MyWindow()
     window.center_window()
     home_view = HomeView()
