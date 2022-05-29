@@ -83,6 +83,7 @@ class HomeView(arcade.View):
         self.generate_home_right_panel()
 
     def on_draw(self):
+        self.window.apply_gui_camera()
         self.clear()
         self.window.apply_game_camera()
 
@@ -123,10 +124,9 @@ class HomeView(arcade.View):
         self.inventory_slot_list.draw(pixelated=True)
         self.vault_list.draw(pixelated=True)
 
-        # self.window.apply_gui_camera()
         self.cursor_hand.draw()
 
-        # self.cursor_hand.draw_hit_box(color=arcade.color.RED, line_thickness=1)
+        # self.cursor_hand.draw_hit_box(color=arcade.color.RED, line_thickness=1)  # debug visual
 
     def on_update(self, delta_time):
         # List updates
