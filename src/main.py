@@ -421,15 +421,15 @@ class HomeView(arcade.View):
                 old_equipped_item = self.equipped_head_list[0]
                 new_equipped_item = icon.item_referenced
                 self.equipped_head_list[0] = new_equipped_item
-                icon.kill()
-                self.icon_list.append(
-                    Icon(
-                        filename=old_equipped_item.icon_image,
-                        scale=ICON_SCALE,
-                        item_referenced=old_equipped_item,
-                        icon_list=self.icon_list,
-                    )
+                new_icon = Icon(
+                    filename=old_equipped_item.icon_image,
+                    scale=ICON_SCALE,
+                    item_referenced=old_equipped_item,
+                    icon_list=self.icon_list,
                 )
+                new_icon.inv_pos = icon.inv_pos
+                self.icon_list.append(new_icon)
+                icon.kill()
                 self.refresh_all_windows()
 
     # --------------------------------- Item generation functions used for testing -------------------
