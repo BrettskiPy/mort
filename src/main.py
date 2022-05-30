@@ -104,7 +104,7 @@ class HomeView(arcade.View):
 
         if self.inventory_window:
             self.inventory_window.draw(pixelated=True)
-            # self.inventory_window.display_positions()  # debugging visual
+            self.inventory_window.display_positions()  # debugging visual
             self.icon_list.draw(pixelated=True)
 
         if self.vault_window:
@@ -165,8 +165,8 @@ class HomeView(arcade.View):
                 self.cursor_hand.holding_icon = True
                 for icon in collision:
                     self.cursor_hand.icon_held = icon
+
         elif button == arcade.MOUSE_BUTTON_RIGHT:
-            print("Attempting equip")
             collision = arcade.check_for_collision_with_list(
                 self.cursor_hand, self.icon_list
             )
@@ -175,8 +175,10 @@ class HomeView(arcade.View):
                     self.equip_item_to_player(icon)
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
-        if button == arcade.MOUSE_BUTTON_LEFT:
+        if button == arcade.MOUSE_BUTTON_LEFT and self.cursor_hand.icon_held:
             self.icon_drop_swap(x, y)
+            self.refresh_inventory_window()
+            self.refresh_vault_inventory_window()
         elif button == arcade.MOUSE_BUTTON_RIGHT:
             pass
 
@@ -274,6 +276,10 @@ class HomeView(arcade.View):
         self.position_inventory()
         self.right_side_button_list[0].state = True
 
+    def refresh_inventory_window(self):
+        if self.inventory_window:
+            self.inventory_window.position_icons(self.icon_list)
+
     def inventory_deactivate(self):
         self.inventory_window = None
 
@@ -302,6 +308,10 @@ class HomeView(arcade.View):
             ":assets:gui/inventory.png", INGAME_WINDOW_SCALE, vault_inventory=True
         )
         self.position_vault_inventory_window()
+
+    def refresh_vault_inventory_window(self):
+        if self.vault_inventory_window:
+            self.vault_inventory_window.position_icons(self.icon_list)
 
     def position_vault_inventory_window(self):
         self.vault_inventory_window.center_x = (
@@ -356,10 +366,10 @@ class HomeView(arcade.View):
             print("fight")
 
     def icon_drop_swap(self, cursor_x, cursor_y):
-        if self.cursor_hand.icon_held:
-            collision = arcade.check_for_collision_with_list(
-                self.cursor_hand, self.icon_list
-            )
+        collision = arcade.check_for_collision_with_list(
+            self.cursor_hand, self.icon_list
+        )
+        if collision:
             for icon in collision:
                 self.cursor_hand.icon_held.center_x, icon.center_x = (
                     icon.center_x,
@@ -379,6 +389,18 @@ class HomeView(arcade.View):
                     self.icon_list[index1],
                     self.icon_list[index2],
                 )
+        else:
+            for (
+                inv_number,
+                icon_mapped_data,
+            ) in self.inventory_window.mapped_carry_positions.items():
+                if (
+                    cursor_x >= icon_mapped_data["x"]
+                    and cursor_x <= icon_mapped_data["x"] + icon_mapped_data["width"]
+                    and cursor_y <= icon_mapped_data["y"]
+                    and cursor_y >= icon_mapped_data["y"] - icon_mapped_data["height"]
+                ):
+                    self.cursor_hand.icon_held.inv_pos = inv_number
 
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(cursor_x, cursor_y)

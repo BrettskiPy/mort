@@ -13,8 +13,8 @@ class HandCursor(arcade.Sprite):
     def grab_icon(self):
         if self.holding_icon:
             arcade.draw_lrwh_rectangle_textured(
-                self.center_x - self.icon_held.width,
-                self.center_y,
+                self.center_x - self.icon_held.width / 2 - 5,
+                self.center_y - self.icon_held.height / 2 + 10,
                 self.icon_held.width,
                 self.icon_held.height,
                 self.icon_held.texture,
@@ -239,7 +239,7 @@ class Inventory(arcade.Sprite):
             map_data["ring1"] = {"x": 310, "y": 330, "width": width, "height": height}
             map_data["boots"] = {"x": 384, "y": 331, "width": width, "height": height}
             map_data["ring2"] = {"x": 459, "y": 331, "width": width, "height": height}
-            print(f"Vault inventory slots: {map_data}")
+
             return map_data
 
         else:
@@ -266,7 +266,7 @@ class Inventory(arcade.Sprite):
             map_data["ring1"] = {"x": 982, "y": 330, "width": width, "height": height}
             map_data["boots"] = {"x": 1058, "y": 331, "width": width, "height": height}
             map_data["ring2"] = {"x": 1133, "y": 331, "width": width, "height": height}
-            print(f"Inventory slots: {map_data}")
+
             return map_data
 
     def mapped_carry_positions(self):
@@ -310,7 +310,6 @@ class Inventory(arcade.Sprite):
                         "height": height,
                     }
 
-            print(f"Vault inventory carry: {map_data}")
             return map_data
 
         else:
@@ -347,5 +346,4 @@ class Inventory(arcade.Sprite):
                         "height": height,
                     }
 
-            print(f"Inventory carry: {map_data}")
             return map_data
