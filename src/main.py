@@ -172,7 +172,9 @@ class HomeView(arcade.View):
             if collision:
                 for icon in collision:
                     self.equip_item_to_player(icon)
-                    self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
+                    self.cursor_hand = HandCursor(
+                        ":assets:cursor/glove_point.png", CURSOR_SCALE
+                    )
                     self.set_cursor_position(x, y)
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
@@ -338,7 +340,6 @@ class HomeView(arcade.View):
         elif self.vault_window:
             self.refresh_vault_inventory_window()
 
-
     def window_key_router(self, key):
         # TODO refactor this into a clean function
         if key == arcade.key.I:
@@ -416,16 +417,19 @@ class HomeView(arcade.View):
             if len(self.equipped_head_list) == 0:
                 self.equipped_head_list.append(icon.item_referenced)
                 icon.kill()
-                print(f"Killed {icon}")
             else:
                 old_equipped_item = self.equipped_head_list[0]
                 new_equipped_item = icon.item_referenced
                 self.equipped_head_list[0] = new_equipped_item
                 icon.kill()
-                self.icon_list.append(Icon(filename=old_equipped_item.icon_image,
-                                           scale=ICON_SCALE,
-                                           item_referenced=old_equipped_item,
-                                           icon_list=self.icon_list))
+                self.icon_list.append(
+                    Icon(
+                        filename=old_equipped_item.icon_image,
+                        scale=ICON_SCALE,
+                        item_referenced=old_equipped_item,
+                        icon_list=self.icon_list,
+                    )
+                )
                 self.refresh_all_windows()
 
     # --------------------------------- Item generation functions used for testing -------------------
