@@ -2,10 +2,10 @@ import arcade
 
 
 class Head(arcade.Sprite):
-    def __init__(self, filename, scale, equip_image, player):
+    def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
         self.filename = filename
-        self.equip_image = equip_image
+        self.icon_image = icon_image
         self.player = player
 
     def update(self):

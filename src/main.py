@@ -27,7 +27,7 @@ class HomeView(arcade.View):
         self.inventory_slot_list = None
         self.vault_list = None
         # Equipped lists
-        self.equipped_helmet_list = None
+        self.equipped_head_list = None
         self.equipped_body_list = None
         self.equipped_legs_list = None
         self.equipped_boots_list = None
@@ -56,7 +56,7 @@ class HomeView(arcade.View):
         self.static_gui_list = arcade.SpriteList()
         self.right_side_button_list = arcade.SpriteList()
 
-        self.equipped_helmet_list = arcade.SpriteList()
+        self.equipped_head_list = arcade.SpriteList()
         self.equipped_body_list = arcade.SpriteList()
         self.equipped_legs_list = arcade.SpriteList()
         self.equipped_boots_list = arcade.SpriteList()
@@ -94,7 +94,7 @@ class HomeView(arcade.View):
         self.right_side_button_list.draw(pixelated=True)
 
         self.equipped_body_list.draw(pixelated=True)
-        self.equipped_helmet_list.draw(pixelated=True)
+        self.equipped_head_list.draw(pixelated=True)
         self.equipped_legs_list.draw(pixelated=True)
         self.equipped_boots_list.draw(pixelated=True)
         self.equipped_gloves_list.draw(pixelated=True)
@@ -136,7 +136,7 @@ class HomeView(arcade.View):
         self.static_gui_list.update()
         self.right_side_button_list.update()
 
-        self.equipped_helmet_list.update()
+        self.equipped_head_list.update()
         self.equipped_body_list.update()
         self.equipped_legs_list.update()
         self.equipped_boots_list.update()
@@ -172,6 +172,8 @@ class HomeView(arcade.View):
             if collision:
                 for icon in collision:
                     self.equip_item_to_player(icon)
+                    self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
+                    self.set_cursor_position(x, y)
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
@@ -306,8 +308,7 @@ class HomeView(arcade.View):
         self.position_vault_inventory_window()
 
     def refresh_vault_inventory_window(self):
-        if self.vault_inventory_window:
-            self.vault_inventory_window.position_icons(self.icon_list)
+        self.vault_inventory_window.position_icons(self.icon_list)
 
     def position_vault_inventory_window(self):
         self.vault_inventory_window.center_x = (
@@ -330,6 +331,13 @@ class HomeView(arcade.View):
     def deactivate_all_buttons_windows(self):
         self.deactivate_all_windows()
         self.deactivate_all_buttons()
+
+    def refresh_all_windows(self):
+        if self.inventory_window:
+            self.refresh_inventory_window()
+        elif self.vault_window:
+            self.refresh_vault_inventory_window()
+
 
     def window_key_router(self, key):
         # TODO refactor this into a clean function
@@ -398,45 +406,55 @@ class HomeView(arcade.View):
                     and inv_number not in [icon.inv_pos for icon in self.icon_list]
                 ):
                     self.cursor_hand.icon_held.inv_pos = inv_number
-                
-        self.refresh_inventory_window()
-        self.refresh_vault_inventory_window()
+
+        self.refresh_all_windows()
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(cursor_x, cursor_y)
 
     def equip_item_to_player(self, icon):
-        if icon.item_data.get("piece") == "Head":
-            self.equipped_helmet_list.append(icon.item_data.get("item"))
-            print(f"Killed {icon}")
-            icon.kill()
+        if isinstance(icon.item_referenced, Head):
+            if len(self.equipped_head_list) == 0:
+                self.equipped_head_list.append(icon.item_referenced)
+                icon.kill()
+                print(f"Killed {icon}")
+            else:
+                old_equipped_item = self.equipped_head_list[0]
+                new_equipped_item = icon.item_referenced
+                self.equipped_head_list[0] = new_equipped_item
+                icon.kill()
+                self.icon_list.append(Icon(filename=old_equipped_item.icon_image,
+                                           scale=ICON_SCALE,
+                                           item_referenced=old_equipped_item,
+                                           icon_list=self.icon_list))
+                self.refresh_all_windows()
 
     # --------------------------------- Item generation functions used for testing -------------------
     def generate_test_inventory_item(self):
         self.item_1 = Head(
             ":assets:armor/head/helm_plume.png",
             HELMET_SCALE,
-            ":assets:icons/test_helm.png",
+            ":assets:icons/armor/head/test_helm.png",
             self.player,
         )
         self.icon_1 = Icon(
-            self.item_1.equip_image,
+            self.item_1.icon_image,
             ICON_SCALE,
-            {"piece": type(self.item_1).__name__, "item": self.item_1},
+            self.item_1,
             self.icon_list,
         )
         self.icon_list.append(self.icon_1)
 
         self.item_2 = Head(
-            ":assets:armor/head/helm_plume.png",
+            ":assets:armor/head/wizard_lightgreen.png",
             HELMET_SCALE,
-            ":assets:icons/test_hat.png",
+            ":assets:icons/armor/head/test_hat.png",
             self.player,
         )
 
         self.icon_2 = Icon(
-            self.item_2.equip_image,
+            self.item_2.icon_image,
             ICON_SCALE,
-            {"piece": type(self.item_2).__name__, "item": self.item_2},
+            self.item_2,
             self.icon_list,
         )
         self.icon_list.append(self.icon_2)

@@ -2,9 +2,9 @@ import arcade
 
 
 class Icon(arcade.Sprite):
-    def __init__(self, filename, scale, item_data, icon_list):
+    def __init__(self, filename, scale, item_referenced, icon_list):
         super().__init__(filename, scale)
-        self.item_data = item_data
+        self.item_referenced = item_referenced
         self.inv_pos = 0
         self.icon_list = icon_list
         self.set_inv_position()
