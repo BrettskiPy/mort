@@ -2,7 +2,6 @@ from armor import *
 from player import Player
 from gui import *
 from icon import *
-from weapon import *
 
 import arcade
 from arcade import key
@@ -175,11 +174,11 @@ class HomeView(arcade.View):
                     self.equip_item_to_player(icon)
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
-        if button == arcade.MOUSE_BUTTON_LEFT and self.cursor_hand.icon_held:
-            self.icon_drop_swap(x, y)
-            self.refresh_inventory_window()
-            self.refresh_vault_inventory_window()
-        elif button == arcade.MOUSE_BUTTON_RIGHT:
+        if button == arcade.MOUSE_BUTTON_LEFT:
+            if self.cursor_hand.icon_held:
+                self.icon_drop_swap(x, y)
+
+        if button == arcade.MOUSE_BUTTON_RIGHT:
             pass
 
     def set_cursor_position(self, x, y):
@@ -187,7 +186,6 @@ class HomeView(arcade.View):
         self.cursor_hand.center_y = y
 
     def on_key_press(self, key, modifiers):
-        """Called whenever a key is pressed."""
         self.window_key_router(key)
 
         # FIXME key x is test
@@ -244,11 +242,9 @@ class HomeView(arcade.View):
             self.cursor_hand, self.right_side_button_list
         ):
             if button.state:
-                self.deactivate_all_windows()
-                self.deactivate_all_buttons()
+                self.deactivate_all_buttons_windows()
             else:
-                self.deactivate_all_windows()
-                self.deactivate_all_buttons()
+                self.deactivate_all_buttons_windows()
                 button.state = True
                 if button.description == "inventory":
                     self.inventory_display()
@@ -331,25 +327,25 @@ class HomeView(arcade.View):
         for other_buttons in self.right_side_button_list:
             other_buttons.state = False
 
+    def deactivate_all_buttons_windows(self):
+        self.deactivate_all_windows()
+        self.deactivate_all_buttons()
+
     def window_key_router(self, key):
         # TODO refactor this into a clean function
         if key == arcade.key.I:
             if self.inventory_window:
-                self.deactivate_all_windows()
-                self.deactivate_all_buttons()
+                self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:
-                self.deactivate_all_windows()
-                self.deactivate_all_buttons()
+                self.deactivate_all_buttons_windows()
                 self.inventory_display()
                 self.inventory_window.position_icons(self.icon_list)
 
         if key == arcade.key.V:
             if self.vault_window:
-                self.deactivate_all_windows()
-                self.deactivate_all_buttons()
+                self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:
-                self.deactivate_all_windows()
-                self.deactivate_all_buttons()
+                self.deactivate_all_buttons_windows()
                 self.vault_window_display()
                 self.vault_inventory_window.position_icons(self.icon_list)
 
@@ -399,9 +395,12 @@ class HomeView(arcade.View):
                     and cursor_x <= icon_mapped_data["x"] + icon_mapped_data["width"]
                     and cursor_y <= icon_mapped_data["y"]
                     and cursor_y >= icon_mapped_data["y"] - icon_mapped_data["height"]
+                    and inv_number not in [icon.inv_pos for icon in self.icon_list]
                 ):
                     self.cursor_hand.icon_held.inv_pos = inv_number
-
+                
+        self.refresh_inventory_window()
+        self.refresh_vault_inventory_window()
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(cursor_x, cursor_y)
 
@@ -426,6 +425,21 @@ class HomeView(arcade.View):
             self.icon_list,
         )
         self.icon_list.append(self.icon_1)
+
+        self.item_2 = Head(
+            ":assets:armor/head/helm_plume.png",
+            HELMET_SCALE,
+            ":assets:icons/test_hat.png",
+            self.player,
+        )
+
+        self.icon_2 = Icon(
+            self.item_2.equip_image,
+            ICON_SCALE,
+            {"piece": type(self.item_2).__name__, "item": self.item_2},
+            self.icon_list,
+        )
+        self.icon_list.append(self.icon_2)
 
     def generate_test_items(self):
         pass
