@@ -216,56 +216,56 @@ class Inventory(arcade.Sprite):
         height = 62
         map_data = dict()
         if self.vault_inventory:
-            map_data["head"] = {"x": 385, "y": 610, "width": width, "height": height}
-            map_data["cape"] = {"x": 460, "y": 610, "width": width, "height": height}
-            map_data["shoulder"] = {
+            map_data["Head"] = {"x": 385, "y": 610, "width": width, "height": height}
+            map_data["Cloak"] = {"x": 460, "y": 610, "width": width, "height": height}
+            map_data["Shoulder"] = {
                 "x": 310,
                 "y": 540,
                 "width": width,
                 "height": height,
             }
-            map_data["body"] = {"x": 385, "y": 540, "width": width, "height": height}
-            map_data["necklace"] = {
+            map_data["Body"] = {"x": 385, "y": 540, "width": width, "height": height}
+            map_data["Necklace"] = {
                 "x": 460,
                 "y": 540,
                 "width": width,
                 "height": height,
             }
-            map_data["gloves"] = {"x": 310, "y": 470, "width": width, "height": height}
-            map_data["belt"] = {"x": 385, "y": 470, "width": width, "height": height}
-            map_data["main"] = {"x": 310, "y": 400, "width": width, "height": height}
-            map_data["pants"] = {"x": 384, "y": 402, "width": width, "height": height}
-            map_data["off"] = {"x": 459, "y": 400, "width": width, "height": height}
-            map_data["ring1"] = {"x": 310, "y": 330, "width": width, "height": height}
-            map_data["boots"] = {"x": 384, "y": 331, "width": width, "height": height}
-            map_data["ring2"] = {"x": 459, "y": 331, "width": width, "height": height}
+            map_data["Gloves"] = {"x": 310, "y": 470, "width": width, "height": height}
+            map_data["Belt"] = {"x": 385, "y": 470, "width": width, "height": height}
+            map_data["MainHand"] = {"x": 310, "y": 400, "width": width, "height": height}
+            map_data["Legs"] = {"x": 384, "y": 402, "width": width, "height": height}
+            map_data["OffHand"] = {"x": 459, "y": 400, "width": width, "height": height}
+            map_data["Ring1"] = {"x": 310, "y": 330, "width": width, "height": height}
+            map_data["Boots"] = {"x": 384, "y": 331, "width": width, "height": height}
+            map_data["Ring2"] = {"x": 459, "y": 331, "width": width, "height": height}
 
             return map_data
 
         else:
-            map_data["head"] = {"x": 1058, "y": 610, "width": width, "height": height}
-            map_data["cape"] = {"x": 1133, "y": 610, "width": width, "height": height}
-            map_data["shoulder"] = {
+            map_data["Head"] = {"x": 1058, "y": 610, "width": width, "height": height}
+            map_data["Cloak"] = {"x": 1133, "y": 610, "width": width, "height": height}
+            map_data["Shoulder"] = {
                 "x": 982,
                 "y": 540,
                 "width": width,
                 "height": height,
             }
-            map_data["body"] = {"x": 1058, "y": 540, "width": width, "height": height}
-            map_data["necklace"] = {
+            map_data["Body"] = {"x": 1058, "y": 540, "width": width, "height": height}
+            map_data["Necklace"] = {
                 "x": 1133,
                 "y": 540,
                 "width": width,
                 "height": height,
             }
-            map_data["gloves"] = {"x": 982, "y": 470, "width": width, "height": height}
-            map_data["belt"] = {"x": 1058, "y": 470, "width": width, "height": height}
-            map_data["main"] = {"x": 982, "y": 400, "width": width, "height": height}
-            map_data["pants"] = {"x": 1058, "y": 402, "width": width, "height": height}
-            map_data["off"] = {"x": 1133, "y": 400, "width": width, "height": height}
-            map_data["ring1"] = {"x": 982, "y": 330, "width": width, "height": height}
-            map_data["boots"] = {"x": 1058, "y": 331, "width": width, "height": height}
-            map_data["ring2"] = {"x": 1133, "y": 331, "width": width, "height": height}
+            map_data["Gloves"] = {"x": 982, "y": 470, "width": width, "height": height}
+            map_data["Belt"] = {"x": 1058, "y": 470, "width": width, "height": height}
+            map_data["MainHand"] = {"x": 982, "y": 400, "width": width, "height": height}
+            map_data["Legs"] = {"x": 1058, "y": 402, "width": width, "height": height}
+            map_data["Offhand"] = {"x": 1133, "y": 400, "width": width, "height": height}
+            map_data["Ring1"] = {"x": 982, "y": 330, "width": width, "height": height}
+            map_data["Boots"] = {"x": 1058, "y": 331, "width": width, "height": height}
+            map_data["Ring2"] = {"x": 1133, "y": 331, "width": width, "height": height}
 
             return map_data
 

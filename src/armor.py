@@ -17,9 +17,10 @@ class Head(arcade.Sprite):
 
 
 class Body(arcade.Sprite):
-    def __init__(self, filename, scale, equip_image, player):
+    def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
-        self.equip_image = equip_image
+        self.filename = filename
+        self.icon_image = icon_image
         self.player = player
 
     def update(self):
@@ -31,9 +32,10 @@ class Body(arcade.Sprite):
 
 
 class Legs(arcade.Sprite):
-    def __init__(self, filename, scale, equip_image, player):
+    def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
-        self.equip_image = equip_image
+        self.filename = filename
+        self.icon_image = icon_image
         self.player = player
 
     def update(self):
@@ -42,12 +44,12 @@ class Legs(arcade.Sprite):
             self.center_y = self.player.center_y
         else:
             self.kill()
-
 
 class Boots(arcade.Sprite):
-    def __init__(self, filename, scale, equip_image, player):
+    def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
-        self.equip_image = equip_image
+        self.filename = filename
+        self.icon_image = icon_image
         self.player = player
 
     def update(self):
@@ -57,11 +59,11 @@ class Boots(arcade.Sprite):
         else:
             self.kill()
 
-
 class Gloves(arcade.Sprite):
-    def __init__(self, filename, scale, equip_image, player):
+    def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
-        self.equip_image = equip_image
+        self.filename = filename
+        self.icon_image = icon_image
         self.player = player
 
     def update(self):
@@ -73,9 +75,10 @@ class Gloves(arcade.Sprite):
 
 
 class Cloak(arcade.Sprite):
-    def __init__(self, filename, scale, equip_image, player):
+    def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
-        self.equip_image = equip_image
+        self.filename = filename
+        self.icon_image = icon_image
         self.player = player
 
     def update(self):
