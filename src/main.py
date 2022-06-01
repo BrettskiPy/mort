@@ -1,5 +1,6 @@
 from armor import *
 from player import Player
+from weapon import *
 from gui import *
 from icon import *
 
@@ -449,6 +450,20 @@ class HomeView(arcade.View):
         )
         self.inventory_icon_list.append(self.icon_1)
 
+        self.item_1 = Head(
+            ":assets:armor/head/black_horn_2.png",
+            HELMET_SCALE,
+            ":assets:icons/armor/head/helmet_4.png",
+            self.player,
+        )
+        self.icon_1 = InventoryIcon(
+            self.item_1.icon_image,
+            ICON_SCALE,
+            self.item_1,
+            self.inventory_icon_list,
+        )
+        self.inventory_icon_list.append(self.icon_1)
+
         self.item_2 = Head(
             ":assets:armor/head/wizard_purple.png",
             HELMET_SCALE,
@@ -464,8 +479,23 @@ class HomeView(arcade.View):
         self.inventory_icon_list.append(self.icon_2)
 
         self.item_3 = Body(
+            ":assets:armor/body/maxwell_new.png",
+            BODY_SCALE,
+            ":assets:icons/armor/body/swamp_dragon_armor.png",
+            self.player,
+        )
+
+        self.icon_3 = InventoryIcon(
+            self.item_3.icon_image,
+            ICON_SCALE,
+            self.item_3,
+            self.inventory_icon_list,
+        )
+        self.inventory_icon_list.append(self.icon_3)
+
+        self.item_3 = Body(
             ":assets:armor/body/coat_red.png",
-            HELMET_SCALE,
+            BODY_SCALE,
             ":assets:icons/armor/body/robe_ego_1.png",
             self.player,
         )
@@ -478,20 +508,49 @@ class HomeView(arcade.View):
         )
         self.inventory_icon_list.append(self.icon_3)
 
-        self.item_4 = Body(
-            ":assets:armor/body/robe_blue.png",
-            HELMET_SCALE,
-            ":assets:icons/armor/body/robe_ego_2.png",
+        self.item_5 = Legs(
+            ":assets:armor/legs/leg_armor_0.png",
+            LEGS_SCALE,
+            ":assets:icons/armor/legs/leg_armor_0.png",
             self.player,
         )
 
-        self.icon_4 = InventoryIcon(
-            self.item_4.icon_image,
+        self.icon_5 = InventoryIcon(
+            self.item_5.icon_image,
             ICON_SCALE,
-            self.item_4,
+            self.item_5,
             self.inventory_icon_list,
         )
-        self.inventory_icon_list.append(self.icon_4)
+        self.inventory_icon_list.append(self.icon_5)
+
+        self.item_6 = Gloves(
+            ":assets:armor/gloves/gauntlet_blue.png",
+            GLOVES_SCALE,
+            ":assets:icons/armor/gloves/glove_5.png",
+            self.player,
+        )
+
+        self.icon_6 = InventoryIcon(
+            self.item_6.icon_image,
+            ICON_SCALE,
+            self.item_6,
+            self.inventory_icon_list,
+        )
+        self.inventory_icon_list.append(self.icon_6)
+
+        self.item_7 = MainHand(
+            ":assets:weapons/main_hand/scythe_new.png",
+            WEAPON_SCALE,
+            ":assets:icons/weapons/main_hand/scythe_2.png",
+            self.player,
+        )
+        self.icon_7 = InventoryIcon(
+            self.item_7.icon_image,
+            ICON_SCALE,
+            self.item_7,
+            self.inventory_icon_list,
+        )
+        self.inventory_icon_list.append(self.icon_7)
 
     def generate_test_items(self):
         pass

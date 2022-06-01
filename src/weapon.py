@@ -2,8 +2,10 @@ import arcade
 
 
 class MainHand(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
+        self.filename = filename
+        self.icon_image = icon_image
         self.player = player
 
     def update(self):
@@ -12,7 +14,6 @@ class MainHand(arcade.Sprite):
             self.center_y = self.player.center_y
         else:
             self.kill()
-
 
 class OffHand(arcade.Sprite):
     def __init__(self, filename, scale, player):
