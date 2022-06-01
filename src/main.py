@@ -38,7 +38,6 @@ class HomeView(arcade.View):
         self.cursor_hand = None
         self.inventory_window = None
         self.vault_window = None
-        self.vault_inventory_window = None
         self.portrait_frame = None
         self.portrait = None
 
@@ -103,10 +102,6 @@ class HomeView(arcade.View):
         if self.vault_window:
             self.vault_window.draw(pixelated=True)
             # self.vault_window.display_positions()  # debugging visual
-            self.vault_inventory_window.draw(pixelated=True)
-            # self.vault_inventory_window.display_positions()  # debugging visual
-            self.inventory_icon_list.draw(pixelated=True)
-            self.inventory_icon_slot_list.draw(pixelated=True)
 
         for button in self.right_side_button_list:
             if button.state:
@@ -190,8 +185,6 @@ class HomeView(arcade.View):
             self.generate_test_inventory_item()
             if self.inventory_window:
                 self.inventory_window.position_icons(self.inventory_icon_list)
-            elif self.vault_inventory_window:
-                self.vault_inventory_window.position_icons(self.inventory_icon_list)
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
@@ -247,7 +240,6 @@ class HomeView(arcade.View):
                     self.inventory_window.position_icons(self.inventory_icon_list)
                 elif button.description == "vault":
                     self.vault_window_display()
-                    self.vault_inventory_window.position_icons(self.inventory_icon_list)
                 elif button.description == "trade":
                     print("Trading")
                 elif button.description == "blacksmith":
@@ -285,8 +277,6 @@ class HomeView(arcade.View):
         self.vault_window = Vault(":assets:gui/vault.png", INGAME_WINDOW_SCALE)
         self.position_vault_window()
         self.right_side_button_list[1].state = True
-        self.vault_inventory_window_display()
-        self.position_vault_inventory_window()
 
     def position_vault_window(self):
         self.vault_window.center_x = GAME_WIDTH - self.vault_window.width / 2 - 65
@@ -295,28 +285,9 @@ class HomeView(arcade.View):
     def vault_window_deactivate(self):
         self.vault_window = None
 
-    def vault_inventory_window_display(self):
-        self.vault_inventory_window = Inventory(
-            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE, vault_inventory=True
-        )
-        self.position_vault_inventory_window()
-
-    def refresh_vault_inventory_window(self):
-        self.vault_inventory_window.position_icons(self.inventory_icon_list)
-
-    def position_vault_inventory_window(self):
-        self.vault_inventory_window.center_x = (
-            self.vault_inventory_window.width / 2 + 40
-        )
-        self.vault_inventory_window.center_y = GAME_HEIGHT / 2
-
-    def vault_inventory_window_deactivate(self):
-        self.vault_inventory_window = None
-
     def deactivate_all_windows(self):
         self.inventory_deactivate()
         self.vault_window_deactivate()
-        self.vault_inventory_window_deactivate()
 
     def deactivate_all_buttons(self):
         for other_buttons in self.right_side_button_list:
@@ -329,8 +300,6 @@ class HomeView(arcade.View):
     def refresh_all_windows(self):
         if self.inventory_window:
             self.refresh_inventory_window()
-        elif self.vault_window:
-            self.refresh_vault_inventory_window()
 
     def window_key_router(self, key):
         # TODO refactor this into a clean function
@@ -348,7 +317,6 @@ class HomeView(arcade.View):
             elif [button.state for button in self.right_side_button_list]:
                 self.deactivate_all_buttons_windows()
                 self.vault_window_display()
-                self.vault_inventory_window.position_icons(self.inventory_icon_list)
 
         if key == arcade.key.T:
             print("trade")
@@ -396,7 +364,8 @@ class HomeView(arcade.View):
                     and cursor_x <= icon_mapped_data["x"] + icon_mapped_data["width"]
                     and cursor_y <= icon_mapped_data["y"]
                     and cursor_y >= icon_mapped_data["y"] - icon_mapped_data["height"]
-                    and inv_number not in [icon.inv_pos for icon in self.inventory_icon_list]
+                    and inv_number
+                    not in [icon.inv_pos for icon in self.inventory_icon_list]
                 ):
                     self.cursor_hand.icon_held.inv_pos = inv_number
 
@@ -418,9 +387,12 @@ class HomeView(arcade.View):
     def equip_empty_slot(self, icon):
         # fixme this is long and complicated.... split into smaller functions or make cleaner
         self.equipped_list.append(icon.item_referenced)
-        slot_icon = InventorySlotIcon(icon.item_referenced.icon_image, ICON_SCALE,
-                                      icon.item_referenced, inv_window=self.inventory_window,
-                                      inv_vault_window=self.vault_inventory_window)
+        slot_icon = InventorySlotIcon(
+            icon.item_referenced.icon_image,
+            ICON_SCALE,
+            icon.item_referenced,
+            inv_window=self.inventory_window,
+        )
         self.inventory_icon_slot_list.append(slot_icon)
 
     def equip_swap(self, icon, item_type):
@@ -438,9 +410,12 @@ class HomeView(arcade.View):
         new_equipped_item = icon.item_referenced
         self.equipped_list.append(new_equipped_item)
 
-        new_slot_icon = InventorySlotIcon(icon.item_referenced.icon_image, ICON_SCALE,
-                                      icon.item_referenced, inv_window=self.inventory_window,
-                                      inv_vault_window=self.vault_inventory_window)
+        new_slot_icon = InventorySlotIcon(
+            icon.item_referenced.icon_image,
+            ICON_SCALE,
+            icon.item_referenced,
+            inv_window=self.inventory_window,
+        )
 
         for old_slot_icon in self.inventory_icon_slot_list:
             if isinstance(old_slot_icon.item_referenced, item_type):
@@ -457,13 +432,6 @@ class HomeView(arcade.View):
         old_icon.inv_pos = icon.inv_pos
         self.inventory_icon_list.append(old_icon)
         old_equipped_item.kill()
-
-
-
-
-
-
-
 
     # --------------------------------- Item generation functions used for testing -------------------
     def generate_test_inventory_item(self):

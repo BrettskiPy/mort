@@ -24,19 +24,14 @@ class InventoryIcon(arcade.Sprite):
 
 
 class InventorySlotIcon(arcade.Sprite):
-    def __init__(self, filename, scale, item_referenced, inv_window=None, inv_vault_window=None):
+    def __init__(self, filename, scale, item_referenced, inv_window=None):
         super().__init__(filename, scale)
         self.item_referenced = item_referenced
         self.inv_window = inv_window
-        self.vault_window = inv_vault_window
         self.set_inv_position()
 
     def set_inv_position(self):
         if self.inv_window:
             item_type = self.item_referenced.__class__.__name__
-            self.center_x = self.inv_window.mapped_slot_positions[item_type]['x']
-            self.center_y = self.inv_window.mapped_slot_positions[item_type]['y']
-        else:
-            item_type = self.item_referenced.__class__.__name__
-            self.center_x = self.vault_window.mapped_slot_positions[item_type]['x']
-            self.center_y = self.vault_window.mapped_slot_positions[item_type]['y']
+            self.center_x = self.inv_window.mapped_slot_positions[item_type]["x"]
+            self.center_y = self.inv_window.mapped_slot_positions[item_type]["y"]

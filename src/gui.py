@@ -187,14 +187,14 @@ class Vault(arcade.Sprite):
 
 
 class Inventory(arcade.Sprite):
-    def __init__(self, filename, scale=CURSOR_SCALE, open=False, vault_inventory=False):
+    def __init__(self, filename, scale=CURSOR_SCALE, open=False):
         super().__init__(filename, scale)
         self.open = open
-        self.vault_inventory = vault_inventory
         self.mapped_carry_positions = self.mapped_carry_positions()
         self.mapped_slot_positions = self.mapped_slot_positions()
 
     def position_icons(self, icon_list):
+        print(self.mapped_carry_positions)
         if icon_list:
             for icon in icon_list:
                 icon.center_x = self.mapped_carry_positions[icon.inv_pos]["x"]
@@ -215,59 +215,31 @@ class Inventory(arcade.Sprite):
         width = 62
         height = 62
         map_data = dict()
-        if self.vault_inventory:
-            map_data["Head"] = {"x": 385, "y": 610, "width": width, "height": height}
-            map_data["Cloak"] = {"x": 460, "y": 610, "width": width, "height": height}
-            map_data["Shoulder"] = {
-                "x": 310,
-                "y": 540,
-                "width": width,
-                "height": height,
-            }
-            map_data["Body"] = {"x": 385, "y": 540, "width": width, "height": height}
-            map_data["Necklace"] = {
-                "x": 460,
-                "y": 540,
-                "width": width,
-                "height": height,
-            }
-            map_data["Gloves"] = {"x": 310, "y": 470, "width": width, "height": height}
-            map_data["Belt"] = {"x": 385, "y": 470, "width": width, "height": height}
-            map_data["MainHand"] = {"x": 310, "y": 400, "width": width, "height": height}
-            map_data["Legs"] = {"x": 384, "y": 402, "width": width, "height": height}
-            map_data["OffHand"] = {"x": 459, "y": 400, "width": width, "height": height}
-            map_data["Ring1"] = {"x": 310, "y": 330, "width": width, "height": height}
-            map_data["Boots"] = {"x": 384, "y": 331, "width": width, "height": height}
-            map_data["Ring2"] = {"x": 459, "y": 331, "width": width, "height": height}
+        map_data["Head"] = {"x": 1058, "y": 610, "width": width, "height": height}
+        map_data["Cloak"] = {"x": 1133, "y": 610, "width": width, "height": height}
+        map_data["Shoulder"] = {
+            "x": 982,
+            "y": 540,
+            "width": width,
+            "height": height,
+        }
+        map_data["Body"] = {"x": 1058, "y": 540, "width": width, "height": height}
+        map_data["Necklace"] = {
+            "x": 1133,
+            "y": 540,
+            "width": width,
+            "height": height,
+        }
+        map_data["Gloves"] = {"x": 982, "y": 470, "width": width, "height": height}
+        map_data["Belt"] = {"x": 1058, "y": 470, "width": width, "height": height}
+        map_data["MainHand"] = {"x": 982, "y": 400, "width": width, "height": height}
+        map_data["Legs"] = {"x": 1058, "y": 402, "width": width, "height": height}
+        map_data["Offhand"] = {"x": 1133, "y": 400, "width": width, "height": height}
+        map_data["Ring1"] = {"x": 982, "y": 330, "width": width, "height": height}
+        map_data["Boots"] = {"x": 1058, "y": 331, "width": width, "height": height}
+        map_data["Ring2"] = {"x": 1133, "y": 331, "width": width, "height": height}
 
-            return map_data
-
-        else:
-            map_data["Head"] = {"x": 1058, "y": 610, "width": width, "height": height}
-            map_data["Cloak"] = {"x": 1133, "y": 610, "width": width, "height": height}
-            map_data["Shoulder"] = {
-                "x": 982,
-                "y": 540,
-                "width": width,
-                "height": height,
-            }
-            map_data["Body"] = {"x": 1058, "y": 540, "width": width, "height": height}
-            map_data["Necklace"] = {
-                "x": 1133,
-                "y": 540,
-                "width": width,
-                "height": height,
-            }
-            map_data["Gloves"] = {"x": 982, "y": 470, "width": width, "height": height}
-            map_data["Belt"] = {"x": 1058, "y": 470, "width": width, "height": height}
-            map_data["MainHand"] = {"x": 982, "y": 400, "width": width, "height": height}
-            map_data["Legs"] = {"x": 1058, "y": 402, "width": width, "height": height}
-            map_data["Offhand"] = {"x": 1133, "y": 400, "width": width, "height": height}
-            map_data["Ring1"] = {"x": 982, "y": 330, "width": width, "height": height}
-            map_data["Boots"] = {"x": 1058, "y": 331, "width": width, "height": height}
-            map_data["Ring2"] = {"x": 1133, "y": 331, "width": width, "height": height}
-
-            return map_data
+        return map_data
 
     def mapped_carry_positions(self):
         # FIXME clean this function up
@@ -276,74 +248,37 @@ class Inventory(arcade.Sprite):
         width = 60
         height = 60
         map_data = dict()
-        if self.vault_inventory:
-            center_x = 39
-            for count in range(21):
-                if count >= 0 and count <= 6:
-                    center_x += width_step
-                    map_data[count] = {
-                        "x": center_x,
-                        "y": center_y,
-                        "width": width,
-                        "height": height,
-                    }
-                if count == 7:
-                    center_x = 39
-                    center_y = 170
-                if count >= 7 and count <= 13:
-                    center_x += width_step
-                    map_data[count] = {
-                        "x": center_x,
-                        "y": center_y,
-                        "width": width,
-                        "height": height,
-                    }
-                if count == 14:
-                    center_x = 39
-                    center_y = 105
-                if count >= 14 and count <= 21:
-                    center_x += width_step
-                    map_data[count] = {
-                        "x": center_x,
-                        "y": center_y,
-                        "width": width,
-                        "height": height,
-                    }
+        center_x = 712
+        for count in range(21):
+            if count >= 0 and count <= 6:
+                center_x += width_step
+                map_data[count] = {
+                    "x": center_x,
+                    "y": center_y,
+                    "width": width,
+                    "height": height,
+                }
+            if count == 7:
+                center_x = 712
+                center_y = 170
+            if count >= 7 and count <= 13:
+                center_x += width_step
+                map_data[count] = {
+                    "x": center_x,
+                    "y": center_y,
+                    "width": width,
+                    "height": height,
+                }
+            if count == 14:
+                center_x = 712
+                center_y = 105
+            if count >= 14 and count <= 21:
+                center_x += width_step
+                map_data[count] = {
+                    "x": center_x,
+                    "y": center_y,
+                    "width": width,
+                    "height": height,
+                }
 
-            return map_data
-
-        else:
-            center_x = 712
-            for count in range(21):
-                if count >= 0 and count <= 6:
-                    center_x += width_step
-                    map_data[count] = {
-                        "x": center_x,
-                        "y": center_y,
-                        "width": width,
-                        "height": height,
-                    }
-                if count == 7:
-                    center_x = 712
-                    center_y = 170
-                if count >= 7 and count <= 13:
-                    center_x += width_step
-                    map_data[count] = {
-                        "x": center_x,
-                        "y": center_y,
-                        "width": width,
-                        "height": height,
-                    }
-                if count == 14:
-                    center_x = 712
-                    center_y = 105
-                if count >= 14 and count <= 21:
-                    center_x += width_step
-                    map_data[count] = {
-                        "x": center_x,
-                        "y": center_y,
-                        "width": width,
-                        "height": height,
-                    }
-
-            return map_data
+        return map_data

@@ -45,6 +45,7 @@ class Legs(arcade.Sprite):
         else:
             self.kill()
 
+
 class Boots(arcade.Sprite):
     def __init__(self, filename, scale, icon_image, player):
         super().__init__(filename, scale)
@@ -58,6 +59,7 @@ class Boots(arcade.Sprite):
             self.center_y = self.player.center_y
         else:
             self.kill()
+
 
 class Gloves(arcade.Sprite):
     def __init__(self, filename, scale, icon_image, player):
