@@ -25,14 +25,10 @@ class HomeView(arcade.View):
         self.right_side_button_list = None
         self.inventory_list = None
         self.vault_list = None
+
         # Equipped lists
-        self.equipped_head_list = None
-        self.equipped_body_list = None
-        self.equipped_legs_list = None
-        self.equipped_boots_list = None
-        self.equipped_gloves_list = None
-        self.equipped_main_hand_list = None
-        self.equipped_off_hand_list = None
+        self.equipped_list = None
+
         # Icons lists
         self.inventory_icon_list = None
         self.inventory_icon_slot_list = None
@@ -46,6 +42,14 @@ class HomeView(arcade.View):
         self.portrait_frame = None
         self.portrait = None
 
+        self.equipped_head = None
+        self.equipped_body = None
+        self.equipped_legs = None
+        self.equipped_boots = None
+        self.equipped_gloves = None
+        self.equipped_main_hand = None
+        self.equipped_off_hand = None
+
     def setup(self):
 
         # Sprite lists
@@ -56,13 +60,7 @@ class HomeView(arcade.View):
         self.static_gui_list = arcade.SpriteList()
         self.right_side_button_list = arcade.SpriteList()
 
-        self.equipped_head_list = arcade.SpriteList()
-        self.equipped_body_list = arcade.SpriteList()
-        self.equipped_legs_list = arcade.SpriteList()
-        self.equipped_boots_list = arcade.SpriteList()
-        self.equipped_gloves_list = arcade.SpriteList()
-        self.equipped_main_hand_list = arcade.SpriteList()
-        self.equipped_off_hand_list = arcade.SpriteList()
+        self.equipped_list = arcade.SpriteList()
 
         self.inventory_icon_list = arcade.SpriteList()
         self.inventory_icon_slot_list = arcade.SpriteList()
@@ -94,13 +92,7 @@ class HomeView(arcade.View):
         self.static_gui_list.draw(pixelated=True)
         self.right_side_button_list.draw(pixelated=True)
 
-        self.equipped_body_list.draw(pixelated=True)
-        self.equipped_head_list.draw(pixelated=True)
-        self.equipped_legs_list.draw(pixelated=True)
-        self.equipped_boots_list.draw(pixelated=True)
-        self.equipped_gloves_list.draw(pixelated=True)
-        self.equipped_main_hand_list.draw(pixelated=True)
-        self.equipped_off_hand_list.draw(pixelated=True)
+        self.equipped_list.draw(pixelated=True)
 
         if self.inventory_window:
             self.inventory_window.draw(pixelated=True)
@@ -136,13 +128,8 @@ class HomeView(arcade.View):
         self.static_gui_list.update()
         self.right_side_button_list.update()
 
-        self.equipped_head_list.update()
-        self.equipped_body_list.update()
-        self.equipped_legs_list.update()
-        self.equipped_boots_list.update()
-        self.equipped_gloves_list.update()
-        self.equipped_main_hand_list.update()
-        self.equipped_off_hand_list.update()
+        self.equipped_list.update()
+
         self.inventory_icon_list.update()
         self.inventory_icon_slot_list.update()
 
@@ -182,6 +169,10 @@ class HomeView(arcade.View):
         if button == arcade.MOUSE_BUTTON_LEFT:
             if self.cursor_hand.icon_held:
                 self.icon_drop_swap(x, y)
+            self.cursor_hand = HandCursor(
+                ":assets:cursor/glove_point.png", CURSOR_SCALE
+            )
+            self.set_cursor_position(x, y)
 
         if button == arcade.MOUSE_BUTTON_RIGHT:
             pass
@@ -414,48 +405,62 @@ class HomeView(arcade.View):
         self.set_cursor_position(cursor_x, cursor_y)
 
     def equip_item_to_player(self, icon):
-        # fixme this is long and complicated.... split into smaller functions or make cleaner
-        if isinstance(icon.item_referenced, Head):
-            if len(self.equipped_head_list) == 0:
-                self.equip_empty_slot(icon, self.equipped_head_list)
+        item_type = type(icon.item_referenced)
+        if isinstance(icon.item_referenced, item_type):
+            if any(isinstance(equipped, item_type) for equipped in self.equipped_list):
+                self.equip_swap(icon, item_type)
             else:
-                self.equip_swap(icon, self.equipped_head_list)
-
-
-        if isinstance(icon.item_referenced, Body):
-            if len(self.equipped_body_list) == 0:
-                self.equip_empty_slot(icon, self.equipped_body_list)
-            else:
-                self.equip_swap(icon, self.equipped_body_list)
+                self.equip_empty_slot(icon)
 
         self.refresh_all_windows()
         icon.kill()
 
-    def equip_empty_slot(self, icon, equipped_part_list):
-        equipped_part_list.append(icon.item_referenced)
+    def equip_empty_slot(self, icon):
+        # fixme this is long and complicated.... split into smaller functions or make cleaner
+        self.equipped_list.append(icon.item_referenced)
         slot_icon = InventorySlotIcon(icon.item_referenced.icon_image, ICON_SCALE,
                                       icon.item_referenced, inv_window=self.inventory_window,
                                       inv_vault_window=self.vault_inventory_window)
         self.inventory_icon_slot_list.append(slot_icon)
 
-    def equip_swap(self, icon, equipped_part_list):
-        pass
-        # FIXME has something to do with inventory_icon_slot_list
-        old_equipped_item = equipped_part_list[0]
+    def equip_swap(self, icon, item_type):
+        """If the player equips a new item with the same type, it will kill the icon in that slot and
+        create the a new item icon in its place. It will also kill the equipment on the player and
+        create an equipment icon in the inventory in its place."""
+
+        # FIXME simplify this complex function
+        # gets the old equipped item
+        for item in self.equipped_list:
+            if isinstance(item, item_type):
+                old_equipped_item = item
+                break
+
         new_equipped_item = icon.item_referenced
-        equipped_part_list[0] = new_equipped_item
-        # new_icon = InventoryIcon(
-        #     filename=old_equipped_item.icon_image,
-        #     scale=ICON_SCALE,
-        #     item_referenced=old_equipped_item,
-        #     inventory_icon_list=self.inventory_icon_list,
-        # )
-        # new_icon.inv_pos = icon.inv_pos
-        # self.inventory_icon_list.append(new_icon)
-        # new_slot_icon = InventorySlotIcon(icon.item_referenced.icon_image, ICON_SCALE,
-        #                               icon.item_referenced, inv_window=self.inventory_window,
-        #                               inv_vault_window=self.vault_inventory_window)
-        # self.inventory_icon_slot_list.append(new_slot_icon)
+        self.equipped_list.append(new_equipped_item)
+
+        new_slot_icon = InventorySlotIcon(icon.item_referenced.icon_image, ICON_SCALE,
+                                      icon.item_referenced, inv_window=self.inventory_window,
+                                      inv_vault_window=self.vault_inventory_window)
+
+        for old_slot_icon in self.inventory_icon_slot_list:
+            if isinstance(old_slot_icon.item_referenced, item_type):
+                old_slot_icon.kill()
+
+        self.inventory_icon_slot_list.append(new_slot_icon)
+
+        old_icon = InventoryIcon(
+            filename=old_equipped_item.icon_image,
+            scale=ICON_SCALE,
+            item_referenced=old_equipped_item,
+            inventory_icon_list=self.inventory_icon_list,
+        )
+        old_icon.inv_pos = icon.inv_pos
+        self.inventory_icon_list.append(old_icon)
+        old_equipped_item.kill()
+
+
+
+
 
 
 
