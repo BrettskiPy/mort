@@ -67,7 +67,7 @@ class HomeView(arcade.View):
 
         # Create sprites
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
-        self.player = Player(":assets:player.png", PLAYER_SCALE)
+        self.player = Player(":assets:base/demigod_male.png", PLAYER_SCALE)
         self.player_list.append(self.player)
 
         self.generate_test_items()  # item test creation
@@ -76,7 +76,7 @@ class HomeView(arcade.View):
         self.portrait_frame = PortraitFrame(
             ":assets:gui/portrait_frame/portrait_frame.png", PORTRAIT_PANEL_SCALE
         )
-        self.portrait = Portrait(":assets:gui/portraits/6.png", PORTRAIT_SCALE)
+        self.portrait = Portrait(":assets:gui/portraits/23.png", PORTRAIT_SCALE)
         self.background = arcade.load_texture(":assets:background/4.png")
         self.generate_home_right_panel()
 
@@ -140,26 +140,12 @@ class HomeView(arcade.View):
             self.cursor_hand = HandCursor(":assets:cursor/glove_grab.png", CURSOR_SCALE)
             self.set_cursor_position(x, y)
             self.right_panel_onclick_actions()
-
-            collision = arcade.check_for_collision_with_list(
-                self.cursor_hand, self.inventory_icon_list
-            )
-            if collision:
-                self.cursor_hand.holding_icon = True
-                for icon in collision:
-                    self.cursor_hand.icon_held = icon
+            self.cursor_holding_icon_check()
 
         elif button == arcade.MOUSE_BUTTON_RIGHT:
-            collision = arcade.check_for_collision_with_list(
-                self.cursor_hand, self.inventory_icon_list
-            )
-            if collision:
-                for icon in collision:
-                    self.equip_item_to_player(icon)
-                    self.cursor_hand = HandCursor(
-                        ":assets:cursor/glove_point.png", CURSOR_SCALE
-                    )
-                    self.set_cursor_position(x, y)
+            self.inv_icon_to_equip_check(x, y)
+            self.slot_icon_to_inv_check()
+
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
@@ -190,6 +176,39 @@ class HomeView(arcade.View):
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
         pass
+
+    def cursor_holding_icon_check(self):
+        collision = arcade.check_for_collision_with_list(
+            self.cursor_hand, self.inventory_icon_list
+        )
+        if collision:
+            self.cursor_hand.holding_icon = True
+            for icon in collision:
+                self.cursor_hand.icon_held = icon
+
+    def slot_icon_to_inv_check(self):
+        collision_slot_icon = arcade.check_for_collision_with_list(
+            self.cursor_hand, self.inventory_icon_slot_list
+        )
+        if collision_slot_icon:
+            for icon in collision_slot_icon:
+                new_inv_icon = InventoryIcon(icon.filename, ICON_SCALE, icon.item_referenced, self.inventory_icon_list)
+                self.inventory_icon_list.append(new_inv_icon)
+                icon.item_referenced.kill()
+                icon.kill()
+                self.refresh_all_windows()
+
+    def inv_icon_to_equip_check(self, x, y):
+        collision_icon = arcade.check_for_collision_with_list(
+            self.cursor_hand, self.inventory_icon_list
+        )
+        if collision_icon:
+            for icon in collision_icon:
+                self.equip_item_to_player(icon)
+                self.cursor_hand = HandCursor(
+                    ":assets:cursor/glove_point.png", CURSOR_SCALE
+                )
+                self.set_cursor_position(x, y)
 
     def timed_lighting_with_background(self):
         if self.daylight:
@@ -511,7 +530,7 @@ class HomeView(arcade.View):
         self.item_5 = Legs(
             ":assets:armor/legs/leg_armor_0.png",
             LEGS_SCALE,
-            ":assets:icons/armor/legs/leg_armor_0.png",
+            ":assets:icons/armor/legs/EquipmentIconsC204.png",
             self.player,
         )
 

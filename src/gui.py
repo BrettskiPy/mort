@@ -37,15 +37,15 @@ class MenuButton(arcade.Sprite):
 class Portrait(arcade.Sprite):
     def __init__(self, filename, scale):
         super().__init__(filename, scale)
-        self.center_x = 67
-        self.center_y = GAME_HEIGHT - 79
+        self.center_x = 115
+        self.center_y = GAME_HEIGHT - 90
 
 
 class PortraitFrame(arcade.Sprite):
     def __init__(self, filename, scale):
         super().__init__(filename, scale)
-        self.center_x = 200
-        self.center_y = GAME_HEIGHT - 80
+        self.center_x = 280
+        self.center_y = GAME_HEIGHT - 89
 
 
 class Vault(arcade.Sprite):

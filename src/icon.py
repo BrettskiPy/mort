@@ -4,6 +4,7 @@ import arcade
 class InventoryIcon(arcade.Sprite):
     def __init__(self, filename, scale, item_referenced, inventory_icon_list):
         super().__init__(filename, scale)
+        self.filename = filename
         self.item_referenced = item_referenced
         self.inv_pos = 0
         self.inventory_icon_list = inventory_icon_list
@@ -26,6 +27,7 @@ class InventoryIcon(arcade.Sprite):
 class InventorySlotIcon(arcade.Sprite):
     def __init__(self, filename, scale, item_referenced, inv_window=None):
         super().__init__(filename, scale)
+        self.filename = filename
         self.item_referenced = item_referenced
         self.inv_window = inv_window
         self.set_inv_position()
