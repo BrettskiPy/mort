@@ -49,6 +49,7 @@ class HomeView(arcade.View):
         self.vault_window = None
         self.portrait_frame = None
         self.portrait = None
+        self.total_item_stats = None
 
     def setup(self):
 
@@ -99,14 +100,7 @@ class HomeView(arcade.View):
             # self.inventory_window.display_positions()  # debugging visual
             self.inventory_icon_list.draw(pixelated=True)
             self.inventory_icon_slot_list.draw(pixelated=True)
-
-            # FIXME this needs to calc the actual total without looping every draw cycle
-            x = GAME_WIDTH - self.inventory_window.width
-            y = GAME_HEIGHT - 100
-            for item in self.equipped_list:
-                for stat, value in item.stats.items():
-                    arcade.Text(f'{stat}: {value}', x, y, arcade.color.WHITE, 20, 5).draw()
-                    y -= 30
+            self.display_total_item_stats()
 
         if self.vault_window:
             self.vault_window.draw(pixelated=True)
@@ -182,6 +176,22 @@ class HomeView(arcade.View):
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
         pass
+
+    def display_total_item_stats(self):
+        self.total_item_stats = dict()
+        for item in self.equipped_list:
+            for stat, value in item.stats.items():
+                if self.total_item_stats.get(stat):
+                    self.total_item_stats[stat] += value
+                else:
+                    self.total_item_stats[stat] = value
+
+        if self.total_item_stats:
+            x = GAME_WIDTH - self.inventory_window.width
+            y = GAME_HEIGHT - 100
+            for stat, value in self.total_item_stats.items():
+                arcade.Text(f'{stat}: {value}', x, y, arcade.color.WHITE, 15, 5).draw()
+                y -= 35
 
     def cursor_holding_icon_check(self):
         collision = arcade.check_for_collision_with_list(
@@ -486,40 +496,36 @@ class HomeView(arcade.View):
             Item(
                 name="black_horn",
                 stats={
-                    "health": random.randint(1, 10),
-                    "armor": random.randint(1, 10),
-                    "level": random.randint(1, 10),
+                    "Health": random.randint(1, 10),
+                    "Armor": random.randint(1, 10),
                 },
             ),
             Item(
                 name="coat_red",
                 stats={
-                    "health": random.randint(1, 10),
-                    "armor": random.randint(1, 10),
-                    "level": random.randint(1, 10),
+                    "Health": random.randint(1, 10),
+                    "Armor": random.randint(1, 10),
                 },
             ),
             Item(
                 name="red_legs",
                 stats={
-                    "health": random.randint(1, 10),
-                    "armor": random.randint(1, 10),
-                    "level": random.randint(1, 10),
+                    "Health": random.randint(1, 10),
+                    "Armor":  random.randint(1, 10),
                 },
             ),
             Item(
                 name="robe_blue",
                 stats={
-                    "health": random.randint(1, 10),
-                    "armor": random.randint(1, 10),
-                    "level": random.randint(1, 10),
+                    "Health": random.randint(1, 10),
+                    "Armor": random.randint(1, 10),
                 },
             ),
             Item(
                 name="axe_executioner",
                 stats={
-                    "attack": random.randint(1, 10),
-                    "level": random.randint(1, 10),
+                    "Base damage": random.randint(1, 10),
+                    "Fire damage": random.randint(1, 10),
                 },
             ),
         ]
