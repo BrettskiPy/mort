@@ -181,8 +181,6 @@ class Vault(arcade.Sprite):
                     "width": width,
                     "height": height,
                 }
-
-        print(f"Vault carry: {map_data}")
         return map_data
 
 
@@ -194,7 +192,6 @@ class Inventory(arcade.Sprite):
         self.mapped_slot_positions = self.mapped_slot_positions()
 
     def position_icons(self, icon_list):
-        print(self.mapped_carry_positions)
         if icon_list:
             for icon in icon_list:
                 icon.center_x = self.mapped_carry_positions[icon.inv_pos]["x"]

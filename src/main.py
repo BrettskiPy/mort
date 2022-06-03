@@ -1,11 +1,19 @@
-from armor import *
+import random
+from dataclasses import dataclass
+
 from player import Player
-from weapon import *
 from gui import *
 from icon import *
+from item_local_map import item_map
 
 import arcade
 from arcade import key
+
+
+@dataclass
+class Item:
+    name: str
+    stats: dict
 
 
 class HomeView(arcade.View):
@@ -41,14 +49,6 @@ class HomeView(arcade.View):
         self.vault_window = None
         self.portrait_frame = None
         self.portrait = None
-
-        self.equipped_head = None
-        self.equipped_body = None
-        self.equipped_legs = None
-        self.equipped_boots = None
-        self.equipped_gloves = None
-        self.equipped_main_hand = None
-        self.equipped_off_hand = None
 
     def setup(self):
 
@@ -100,6 +100,14 @@ class HomeView(arcade.View):
             self.inventory_icon_list.draw(pixelated=True)
             self.inventory_icon_slot_list.draw(pixelated=True)
 
+            # FIXME this needs to calc the actual total without looping every draw cycle
+            x = GAME_WIDTH - self.inventory_window.width
+            y = GAME_HEIGHT - 100
+            for item in self.equipped_list:
+                for stat, value in item.stats.items():
+                    arcade.Text(f'{stat}: {value}', x, y, arcade.color.WHITE, 20, 5).draw()
+                    y -= 30
+
         if self.vault_window:
             self.vault_window.draw(pixelated=True)
             # self.vault_window.display_positions()  # debugging visual
@@ -146,7 +154,6 @@ class HomeView(arcade.View):
             self.inv_icon_to_equip_check(x, y)
             self.slot_icon_to_inv_check()
 
-
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
             if self.cursor_hand.icon_held:
@@ -168,8 +175,7 @@ class HomeView(arcade.View):
 
         # FIXME key x is test
         if key == arcade.key.X:
-            print("Generate inventory item")
-            self.generate_test_inventory_item()
+            self.generate_test_server_items()
             if self.inventory_window:
                 self.inventory_window.position_icons(self.inventory_icon_list)
 
@@ -192,7 +198,9 @@ class HomeView(arcade.View):
         )
         if collision_slot_icon:
             for icon in collision_slot_icon:
-                new_inv_icon = InventoryIcon(icon.filename, ICON_SCALE, icon.item_referenced, self.inventory_icon_list)
+                new_inv_icon = InventoryIcon(
+                    icon.filename, icon.item_referenced, self.inventory_icon_list
+                )
                 self.inventory_icon_list.append(new_inv_icon)
                 icon.item_referenced.kill()
                 icon.kill()
@@ -405,7 +413,6 @@ class HomeView(arcade.View):
         icon.kill()
 
     def equip_empty_slot(self, icon):
-        # fixme this is long and complicated.... split into smaller functions or make cleaner
         self.equipped_list.append(icon.item_referenced)
         slot_icon = InventorySlotIcon(
             icon.item_referenced.icon_image,
@@ -453,123 +460,71 @@ class HomeView(arcade.View):
         self.inventory_icon_list.append(old_icon)
         old_equipped_item.kill()
 
+    def create_item_and_icon(self, test_item_data):
+        name = test_item_data.name
+        image = item_map[name]["image"]
+        icon = item_map[name]["icon"]
+        item_type = item_map[name]["type"]
+        stats = test_item_data.stats
+
+        item = item_type(
+            image,
+            icon,
+            self.player,
+            stats,
+        )
+        icon = InventoryIcon(
+            item.icon_image,
+            item,
+            self.inventory_icon_list,
+        )
+        self.inventory_icon_list.append(icon)
+
     # --------------------------------- Item generation functions used for testing -------------------
-    def generate_test_inventory_item(self):
-        self.item_1 = Head(
-            ":assets:armor/head/helm_plume.png",
-            HELMET_SCALE,
-            ":assets:icons/armor/head/test_helm.png",
-            self.player,
-        )
-        self.icon_1 = InventoryIcon(
-            self.item_1.icon_image,
-            ICON_SCALE,
-            self.item_1,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_1)
-
-        self.item_1 = Head(
-            ":assets:armor/head/black_horn_2.png",
-            HELMET_SCALE,
-            ":assets:icons/armor/head/helmet_4.png",
-            self.player,
-        )
-        self.icon_1 = InventoryIcon(
-            self.item_1.icon_image,
-            ICON_SCALE,
-            self.item_1,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_1)
-
-        self.item_2 = Head(
-            ":assets:armor/head/wizard_purple.png",
-            HELMET_SCALE,
-            ":assets:icons/armor/head/hat_3.png",
-            self.player,
-        )
-        self.icon_2 = InventoryIcon(
-            self.item_2.icon_image,
-            ICON_SCALE,
-            self.item_2,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_2)
-
-        self.item_3 = Body(
-            ":assets:armor/body/maxwell_new.png",
-            BODY_SCALE,
-            ":assets:icons/armor/body/swamp_dragon_armor.png",
-            self.player,
-        )
-
-        self.icon_3 = InventoryIcon(
-            self.item_3.icon_image,
-            ICON_SCALE,
-            self.item_3,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_3)
-
-        self.item_3 = Body(
-            ":assets:armor/body/coat_red.png",
-            BODY_SCALE,
-            ":assets:icons/armor/body/robe_ego_1.png",
-            self.player,
-        )
-
-        self.icon_3 = InventoryIcon(
-            self.item_3.icon_image,
-            ICON_SCALE,
-            self.item_3,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_3)
-
-        self.item_5 = Legs(
-            ":assets:armor/legs/leg_armor_0.png",
-            LEGS_SCALE,
-            ":assets:icons/armor/legs/EquipmentIconsC204.png",
-            self.player,
-        )
-
-        self.icon_5 = InventoryIcon(
-            self.item_5.icon_image,
-            ICON_SCALE,
-            self.item_5,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_5)
-
-        self.item_6 = Gloves(
-            ":assets:armor/gloves/gauntlet_blue.png",
-            GLOVES_SCALE,
-            ":assets:icons/armor/gloves/glove_5.png",
-            self.player,
-        )
-
-        self.icon_6 = InventoryIcon(
-            self.item_6.icon_image,
-            ICON_SCALE,
-            self.item_6,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_6)
-
-        self.item_7 = MainHand(
-            ":assets:weapons/main_hand/scythe_new.png",
-            WEAPON_SCALE,
-            ":assets:icons/weapons/main_hand/scythe_2.png",
-            self.player,
-        )
-        self.icon_7 = InventoryIcon(
-            self.item_7.icon_image,
-            ICON_SCALE,
-            self.item_7,
-            self.inventory_icon_list,
-        )
-        self.inventory_icon_list.append(self.icon_7)
+    def generate_test_server_items(self):
+        test_server_items = [
+            Item(
+                name="black_horn",
+                stats={
+                    "health": random.randint(1, 10),
+                    "armor": random.randint(1, 10),
+                    "level": random.randint(1, 10),
+                },
+            ),
+            Item(
+                name="coat_red",
+                stats={
+                    "health": random.randint(1, 10),
+                    "armor": random.randint(1, 10),
+                    "level": random.randint(1, 10),
+                },
+            ),
+            Item(
+                name="red_legs",
+                stats={
+                    "health": random.randint(1, 10),
+                    "armor": random.randint(1, 10),
+                    "level": random.randint(1, 10),
+                },
+            ),
+            Item(
+                name="robe_blue",
+                stats={
+                    "health": random.randint(1, 10),
+                    "armor": random.randint(1, 10),
+                    "level": random.randint(1, 10),
+                },
+            ),
+            Item(
+                name="axe_executioner",
+                stats={
+                    "attack": random.randint(1, 10),
+                    "level": random.randint(1, 10),
+                },
+            ),
+        ]
+        for item in test_server_items:
+            self.create_item_and_icon(item)
 
     def generate_test_items(self):
         pass

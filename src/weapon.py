@@ -1,12 +1,14 @@
 import arcade
+from constants import *
 
 
 class MainHand(arcade.Sprite):
-    def __init__(self, filename, scale, icon_image, player):
+    def __init__(self, filename, icon_image, player, stats, scale=HELMET_SCALE):
         super().__init__(filename, scale)
         self.filename = filename
         self.icon_image = icon_image
         self.player = player
+        self.stats = stats
 
     def update(self):
         if self.player.alive:
@@ -15,10 +17,14 @@ class MainHand(arcade.Sprite):
         else:
             self.kill()
 
+
 class OffHand(arcade.Sprite):
-    def __init__(self, filename, scale, player):
+    def __init__(self, filename, icon_image, player, stats, scale=HELMET_SCALE):
         super().__init__(filename, scale)
+        self.filename = filename
+        self.icon_image = icon_image
         self.player = player
+        self.stats = stats
 
     def update(self):
         if self.player.alive:

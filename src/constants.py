@@ -7,13 +7,14 @@ SERVER = "http://127.0.0.1:8000"
 
 ASSETS_PATH = (Path(__file__).parent / "assets").resolve()
 
-# Player
+# Items
 WEAPON_SCALE = 3
 HELMET_SCALE = 3
 BODY_SCALE = 3
 LEGS_SCALE = 3
 GLOVES_SCALE = 3
 BOOTS_SCALE = 3
+CLOAK_SCALE = 3
 MAIN_HAND_SCALE = 3
 OFF_HAND_SCALE = 3
 
