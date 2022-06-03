@@ -27,6 +27,11 @@ item_map = {
         "image": ":assets:armor/legs/red_legs.png",
         "icon": ":assets:icons/armor/legs/red_legs.png",
     },
+    "gauntlet_blue": {
+        "type": Gloves,
+        "image": ":assets:armor/gloves/gauntlet_blue.png",
+        "icon": ":assets:icons/armor/gloves/gauntlet_blue.png",
+    },
     "axe_executioner": {
         "type": MainHand,
         "image": ":assets:weapon/main_hand/axe_executioner.png",

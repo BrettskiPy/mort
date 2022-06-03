@@ -147,6 +147,7 @@ class HomeView(arcade.View):
         elif button == arcade.MOUSE_BUTTON_RIGHT:
             self.inv_icon_to_equip_check(x, y)
             self.slot_icon_to_inv_check()
+            self.calculate_total_item_stats()
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
@@ -177,7 +178,7 @@ class HomeView(arcade.View):
         """Called when the user releases a key."""
         pass
 
-    def display_total_item_stats(self):
+    def calculate_total_item_stats(self):
         self.total_item_stats = dict()
         for item in self.equipped_list:
             for stat, value in item.stats.items():
@@ -186,12 +187,36 @@ class HomeView(arcade.View):
                 else:
                     self.total_item_stats[stat] = value
 
+    def display_total_item_stats(self):
+        armor_starting_height = GAME_HEIGHT - 130
+        weapon_starting_height = GAME_HEIGHT - 320
+
+        armor_text_y = armor_starting_height
+        weapon_text_y = weapon_starting_height
+        stat_x_pos = 770
+
         if self.total_item_stats:
-            x = GAME_WIDTH - self.inventory_window.width
-            y = GAME_HEIGHT - 100
             for stat, value in self.total_item_stats.items():
-                arcade.Text(f'{stat}: {value}', x, y, arcade.color.WHITE, 15, 5).draw()
-                y -= 35
+                stat_name = stat.lower()
+                if stat_name in ["health", "armor"]:
+                    if stat_name == "health":
+                        arcade.Text(f'{stat}: {value}', stat_x_pos, armor_text_y,
+                                    arcade.color.RED_PURPLE, 12, align="left").draw()
+                    elif stat_name == "armor":
+                        arcade.Text(f'{stat}: {value}', stat_x_pos, armor_text_y,
+                                    arcade.color.ASH_GREY, 12, align="left").draw()
+                    armor_text_y -= 35
+                else:
+                    if stat_name == 'base damage':
+                        arcade.Text(f'{stat}: {value}', stat_x_pos, weapon_text_y,
+                                    arcade.color.ASH_GREY, 12, align="left").draw()
+                    elif stat_name == 'fire damage':
+                        arcade.Text(f'{stat}: {value}', stat_x_pos, weapon_text_y,
+                                    arcade.color.RED, 12, align="left").draw()
+                    elif stat_name == 'ice damage':
+                        arcade.Text(f'{stat}: {value}', stat_x_pos, weapon_text_y,
+                                    arcade.color.CYAN, 12, align="left").draw()
+                    weapon_text_y -= 35
 
     def cursor_holding_icon_check(self):
         collision = arcade.check_for_collision_with_list(
@@ -526,6 +551,14 @@ class HomeView(arcade.View):
                 stats={
                     "Base damage": random.randint(1, 10),
                     "Fire damage": random.randint(1, 10),
+                    "Ice damage": random.randint(1, 30),
+                },
+            ),
+            Item(
+                name="gauntlet_blue",
+                stats={
+                    "Health": random.randint(1, 10),
+                    "Armor": random.randint(1, 10),
                 },
             ),
         ]
