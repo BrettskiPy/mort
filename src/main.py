@@ -9,7 +9,7 @@ from item_local_map import item_map
 import arcade
 from arcade import key
 
-
+# TODO remove this when server is done
 @dataclass
 class Item:
     name: str
@@ -23,10 +23,6 @@ class HomeView(arcade.View):
         self.background = None
         self.time_of_day = 255
         self.daylight = True
-
-        # View variables
-        self.current_cursor_posx = 0
-        self.current_cursor_posy = 0
 
         # Sprite lists
         self.player_list = None
@@ -50,6 +46,8 @@ class HomeView(arcade.View):
         self.portrait_frame = None
         self.portrait = None
         self.total_item_stats = None
+        self.item_popup_background = None
+
 
     def setup(self):
 
@@ -101,6 +99,8 @@ class HomeView(arcade.View):
             self.inventory_icon_list.draw(pixelated=True)
             self.inventory_icon_slot_list.draw(pixelated=True)
             self.display_total_item_stats()
+            if self.item_popup_background:
+                self.item_background_popup_show()
 
         if self.vault_window:
             self.vault_window.draw(pixelated=True)
@@ -176,7 +176,20 @@ class HomeView(arcade.View):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
-        pass
+        if key == arcade.key.LCTRL:
+            self.item_popup_background = False
+
+    def item_background_popup_show(self):
+        if self.item_popup_background:
+            collision = arcade.check_for_collision_with_list(self.cursor_hand, self.inventory_icon_list)
+            for icon in collision:
+                arcade.draw_texture_rectangle(icon.center_x, icon.center_y + 100,
+                                              200, 150, arcade.load_texture(':assets:gui/item_popup_background.png'))
+                y_offset = 140
+                for stat, value in icon.item_referenced.stats.items():
+                    arcade.Text(f"{stat}: {value}", icon.center_x - 70, icon.center_y + y_offset,
+                                arcade.color.WHITE, 14).draw()
+                    y_offset -= 25
 
     def calculate_total_item_stats(self):
         self.total_item_stats = dict()
@@ -392,6 +405,9 @@ class HomeView(arcade.View):
 
         if key == arcade.key.F:
             print("fight")
+
+        if key == arcade.key.LCTRL:
+            self.item_popup_background = True
 
     def icon_drop_swap(self, cursor_x, cursor_y):
         collision = arcade.check_for_collision_with_list(
