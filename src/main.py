@@ -29,7 +29,6 @@ class HomeView(arcade.View):
         self.static_gui_list = None
         self.right_side_button_list = None
         self.inventory_list = None
-        self.vault_list = None
 
         # Equipped lists
         self.equipped_list = None
@@ -48,13 +47,14 @@ class HomeView(arcade.View):
         self.total_item_stats = None
         self.item_popup_background = None
 
+        self.upgrading = False
+        self.upgrade_pentagram = None
 
     def setup(self):
 
         # Sprite lists
         self.inventory_list = arcade.SpriteList()
         self.inventory_slot_list = arcade.SpriteList()
-        self.vault_list = arcade.SpriteList()
         self.player_list = arcade.SpriteList()
         self.static_gui_list = arcade.SpriteList()
         self.right_side_button_list = arcade.SpriteList()
@@ -78,6 +78,12 @@ class HomeView(arcade.View):
         self.portrait = Portrait(":assets:gui/portraits/23.png", PORTRAIT_SCALE)
         self.background = arcade.load_texture(":assets:background/4.png")
         self.generate_home_right_panel()
+        self.upgrade_pentagram = arcade.Sprite(
+            ":assets:gui/upgrade_area/pentagram.png",
+            0.9,
+            center_x=375,
+            center_y=GAME_HEIGHT / 2 - 75,
+        )
 
     def on_draw(self):
         self.window.apply_gui_camera()
@@ -90,8 +96,11 @@ class HomeView(arcade.View):
         self.player_list.draw(pixelated=True)
         self.static_gui_list.draw(pixelated=True)
         self.right_side_button_list.draw(pixelated=True)
-
+        # FIXME have this sort by the proper draw order when equipment gets added to the list
         self.equipped_list.draw(pixelated=True)
+
+        if self.upgrading:
+            self.upgrade_pentagram.draw(pixelated=True)
 
         if self.inventory_window:
             self.inventory_window.draw(pixelated=True)
@@ -113,15 +122,12 @@ class HomeView(arcade.View):
         if self.cursor_hand.holding_icon:
             self.cursor_hand.grab_icon()
 
-        self.vault_list.draw(pixelated=True)
-
         self.cursor_hand.draw()
 
         # self.cursor_hand.draw_hit_box(color=arcade.color.RED, line_thickness=1)  # debug visual
 
     def on_update(self, delta_time):
         # List updates
-        self.vault_list.update()
         self.player_list.update()
         self.static_gui_list.update()
         self.right_side_button_list.update()
@@ -181,14 +187,26 @@ class HomeView(arcade.View):
 
     def item_background_popup_show(self):
         if self.item_popup_background:
-            collision = arcade.check_for_collision_with_list(self.cursor_hand, self.inventory_icon_list)
+            collision = arcade.check_for_collision_with_list(
+                self.cursor_hand, self.inventory_icon_list
+            )
             for icon in collision:
-                arcade.draw_texture_rectangle(icon.center_x, icon.center_y + 100,
-                                              200, 150, arcade.load_texture(':assets:gui/item_popup_background.png'))
+                arcade.draw_texture_rectangle(
+                    icon.center_x,
+                    icon.center_y + 100,
+                    200,
+                    150,
+                    arcade.load_texture(":assets:gui/item_popup_background.png"),
+                )
                 y_offset = 140
                 for stat, value in icon.item_referenced.stats.items():
-                    arcade.Text(f"{stat}: {value}", icon.center_x - 70, icon.center_y + y_offset,
-                                arcade.color.WHITE, 14).draw()
+                    arcade.Text(
+                        f"{stat}: {value}",
+                        icon.center_x - 70,
+                        icon.center_y + y_offset,
+                        arcade.color.WHITE,
+                        14,
+                    ).draw()
                     y_offset -= 25
 
     def calculate_total_item_stats(self):
@@ -213,22 +231,52 @@ class HomeView(arcade.View):
                 stat_name = stat.lower()
                 if stat_name in ["health", "armor"]:
                     if stat_name == "health":
-                        arcade.Text(f'{stat}: {value}', stat_x_pos, armor_text_y,
-                                    arcade.color.RED_PURPLE, 12, align="left").draw()
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            armor_text_y,
+                            arcade.color.RED_PURPLE,
+                            12,
+                            align="left",
+                        ).draw()
                     elif stat_name == "armor":
-                        arcade.Text(f'{stat}: {value}', stat_x_pos, armor_text_y,
-                                    arcade.color.ASH_GREY, 12, align="left").draw()
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            armor_text_y,
+                            arcade.color.ASH_GREY,
+                            12,
+                            align="left",
+                        ).draw()
                     armor_text_y -= 35
                 else:
-                    if stat_name == 'base damage':
-                        arcade.Text(f'{stat}: {value}', stat_x_pos, weapon_text_y,
-                                    arcade.color.ASH_GREY, 12, align="left").draw()
-                    elif stat_name == 'fire damage':
-                        arcade.Text(f'{stat}: {value}', stat_x_pos, weapon_text_y,
-                                    arcade.color.RED, 12, align="left").draw()
-                    elif stat_name == 'ice damage':
-                        arcade.Text(f'{stat}: {value}', stat_x_pos, weapon_text_y,
-                                    arcade.color.CYAN, 12, align="left").draw()
+                    if stat_name == "base damage":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            weapon_text_y,
+                            arcade.color.ASH_GREY,
+                            12,
+                            align="left",
+                        ).draw()
+                    elif stat_name == "fire damage":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            weapon_text_y,
+                            arcade.color.RED,
+                            12,
+                            align="left",
+                        ).draw()
+                    elif stat_name == "ice damage":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            weapon_text_y,
+                            arcade.color.CYAN,
+                            12,
+                            align="left",
+                        ).draw()
                     weapon_text_y -= 35
 
     def cursor_holding_icon_check(self):
@@ -289,7 +337,7 @@ class HomeView(arcade.View):
         self.position_home_right_panel()
         self.static_gui_list.append(self.right_side_bar)
 
-        buttons = ["inventory", "vault", "trade", "blacksmith", "portals", "fight"]
+        buttons = ["inventory", "vault", "trade", "upgrade", "portals", "fight"]
         height = 136
         for button in range(len(buttons)):
             self.button = MenuButton(
@@ -318,8 +366,14 @@ class HomeView(arcade.View):
                     self.vault_window_display()
                 elif button.description == "trade":
                     print("Trading")
-                elif button.description == "blacksmith":
-                    print("blacksmithing")
+                elif button.description == "upgrade":
+                    print("upgrading")
+                    self.background = arcade.load_texture(
+                        ":assets:background/plain_black.png"
+                    )
+                    self.inventory_display_from_upgrade()
+                    self.inventory_window.position_icons(self.inventory_icon_list)
+                    self.upgrading = True
                 elif button.description == "portals":
                     print("portaling")
                 elif button.description == "fight":
@@ -335,6 +389,13 @@ class HomeView(arcade.View):
         )
         self.position_inventory()
         self.right_side_button_list[0].state = True
+
+    def inventory_display_from_upgrade(self):
+        self.inventory_window = Inventory(
+            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
+        )
+        self.position_inventory()
+        self.right_side_button_list[3].state = True
 
     def refresh_inventory_window(self):
         if self.inventory_window:
@@ -372,6 +433,8 @@ class HomeView(arcade.View):
     def deactivate_all_buttons_windows(self):
         self.deactivate_all_windows()
         self.deactivate_all_buttons()
+        self.upgrading = False
+        self.background = arcade.load_texture(":assets:background/4.png")
 
     def refresh_all_windows(self):
         if self.inventory_window:
@@ -397,8 +460,16 @@ class HomeView(arcade.View):
         if key == arcade.key.T:
             print("trade")
 
-        if key == arcade.key.B:
-            print("blacksmith")
+        if key == arcade.key.U:
+            if self.upgrading:
+                self.deactivate_all_buttons_windows()
+            else:
+                self.background = arcade.load_texture(
+                    ":assets:background/plain_black.png"
+                )
+                self.inventory_display_from_upgrade()
+                self.inventory_window.position_icons(self.inventory_icon_list)
+                self.upgrading = True
 
         if key == arcade.key.P:
             print("portals")
@@ -552,7 +623,7 @@ class HomeView(arcade.View):
                 name="red_legs",
                 stats={
                     "Health": random.randint(1, 10),
-                    "Armor":  random.randint(1, 10),
+                    "Armor": random.randint(1, 10),
                 },
             ),
             Item(
