@@ -58,7 +58,6 @@ class HomeView(arcade.View):
         self.sound = None
         self.sound_volume = 1
 
-
     def setup(self):
 
         # Sprite lists
@@ -93,8 +92,9 @@ class HomeView(arcade.View):
         )
 
         # Sound and Music
-        self.music_player = arcade.Sound(file_name=":assets:music/the_field_of_dreams.mp3",
-                                        streaming=True).play(loop=True, speed=.6)
+        self.music_player = arcade.Sound(
+            file_name=":assets:music/the_field_of_dreams.mp3", streaming=True
+        ).play(loop=True, speed=0.6)
 
     def on_draw(self):
         self.window.apply_gui_camera()
@@ -529,7 +529,9 @@ class HomeView(arcade.View):
                     not in [icon.inv_pos for icon in self.inventory_icon_list]
                 ):
                     self.cursor_hand.icon_held.inv_pos = inv_number
-        self.sound = arcade.Sound(":assets:sounds/inventory/item_swap.mp3").play(volume=self.sound_volume)
+        self.sound = arcade.Sound(":assets:sounds/inventory/item_swap.mp3").play(
+            volume=self.sound_volume
+        )
         self.refresh_all_windows()
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(cursor_x, cursor_y)
@@ -541,7 +543,9 @@ class HomeView(arcade.View):
                 self.equip_swap(icon, item_type)
             else:
                 self.equip_empty_slot(icon)
-        self.sound = arcade.Sound(":assets:sounds/inventory/equip.mp3").play(volume=self.sound_volume)
+        self.sound = arcade.Sound(":assets:sounds/inventory/equip.mp3").play(
+            volume=self.sound_volume
+        )
         self.refresh_all_windows()
         icon.kill()
 
