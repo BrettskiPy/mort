@@ -130,3 +130,5 @@ dmypy.json
 
 # Pycharm files
 .idea/
+
+!server/app/mort_server/email-templates/build
