@@ -1,0 +1,28 @@
+# General Config
+DOMAIN=localhost
+STACK_NAME=mort-backend
+
+# Port Configurations
+PORT_TRAEFIK=80
+PORT_TRAEFIK_DASHBOARD=8080
+PORT_DB=5432
+PORT_BACKEND=8888
+
+# Traefik Settings
+TRAEFIK_PUBLIC_NETWORK=traefik-public
+TRAEFIK_PUBLIC_TAG=traefik-public
+TRAEFIK_TAG=traefik-stack
+
+# Docker Settings
+DOCKER_IMAGE_API=mort_backend_api
+
+# API
+BACKEND_CORS_ORIGINS=['http://localhost']
+PROJECT_NAME=mort_api
+EMAILS_ENABLED=False
+
+# Postgres
+POSTGRES_SERVER=db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_DB=mort

@@ -6,7 +6,7 @@ import bcrypt
 import jwt
 
 from mort_server.config import settings
-from mort_server.email import send_email
+from mort_server.email_utils import send_email
 
 JWT_ALGORITHM = "HS256"
 

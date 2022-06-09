@@ -7,7 +7,7 @@ from mort_server.config import settings
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Mort Server API",
-    openapi_url="/openapi.json",
+    openapi_url="/api/openapi.json",
 )
 
 if settings.CORS_ORIGINS:
@@ -19,4 +19,4 @@ if settings.CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-app.include_router(api.router)
+app.include_router(api.router, prefix="/api")
