@@ -2,6 +2,7 @@ from constants import *
 
 from arcade import key
 import arcade
+from pypresence import Presence
 
 
 class GameWindow(arcade.Window):
@@ -10,6 +11,23 @@ class GameWindow(arcade.Window):
         self.views = {}
         self.set_min_size(GAME_WIDTH, GAME_HEIGHT)
         self._fullscreen = False
+    
+    def setup_discord_rpc(self):
+        def connect_pipe(pipe:int=0):
+            try:
+                discord_rpc = Presence(CLIENT_ID, pipe=pipe)
+                discord_rpc.connect()
+                return discord_rpc
+            except:
+                if pipe == 9:
+                    return
+                return connect_pipe(pipe+1)
+        self.discord_rpc = connect_pipe()
+        if self.discord_rpc:
+            self.discord_rpc.update(
+            **DISCORD_RPC_ASSETS
+            )
+                
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == key.F11:

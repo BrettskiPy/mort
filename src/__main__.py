@@ -723,6 +723,7 @@ def main():
     resources.add_resource_handle("assets", ASSETS_PATH)
     window = GameWindow()
     window.center_window()
+    window.setup_discord_rpc()
     home_view = HomeView()
     home_view.setup()
     window.set_mouse_visible(False)

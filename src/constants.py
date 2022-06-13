@@ -1,4 +1,5 @@
 from pathlib import Path
+from time import time
 
 # Server
 SERVER = "http://127.0.0.1:8000"
@@ -34,3 +35,18 @@ GAME_WIDTH = 1280
 GAME_HEIGHT = 720
 GAME_ASPECT_RATIO = GAME_WIDTH / GAME_HEIGHT
 WINDOW_TITLE = "Mort"
+
+# Discord RPC
+CLIENT_ID = "SOME ID U GET FROM https://discord.dev"
+DISCORD_RPC_ASSETS = {
+    "large_image": "some_name.png",
+    "small_image": "some_name_2.png",  # We set the game name as the app name
+    "state": "<state of the player>",
+    "buttons": [
+        {
+            "label": "Checkout Mort on GitHub",
+            "url": "https://github.com/BrettskiPy/mort"
+        }
+    ],
+    "start": time()
+}
