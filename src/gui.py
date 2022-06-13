@@ -30,7 +30,7 @@ class MenuButton(arcade.Sprite):
     def display_clicked(self):
         if self.state:
             arcade.draw_rectangle_outline(
-                self.center_x, self.center_y, 50, 50, arcade.color.WHITE, 4
+                self.center_x, self.center_y, 54, 54, arcade.color.GOLD, 3
             )
 
 

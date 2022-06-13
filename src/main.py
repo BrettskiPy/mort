@@ -5,9 +5,9 @@ from player import Player
 from gui import *
 from icon import *
 from item_local_map import item_map
+from game_window import GameWindow
 
 import arcade
-from arcade import key
 
 # TODO remove this when server is done
 @dataclass
@@ -56,7 +56,7 @@ class HomeView(arcade.View):
         self.music_player = None
         self.music_volume = 1
         self.sound = None
-        self.sound_volume = 1
+        self.sound_volume = 0.5
 
     def setup(self):
 
@@ -139,14 +139,7 @@ class HomeView(arcade.View):
 
     def on_update(self, delta_time):
         # List updates
-        self.player_list.update()
-        self.static_gui_list.update()
-        self.right_side_button_list.update()
-
         self.equipped_list.update()
-
-        self.inventory_icon_list.update()
-        self.inventory_icon_slot_list.update()
 
         # Individual sprite updates
         self.cursor_hand.on_update()
@@ -178,10 +171,6 @@ class HomeView(arcade.View):
         if button == arcade.MOUSE_BUTTON_RIGHT:
             pass
 
-    def set_cursor_position(self, x, y):
-        self.cursor_hand.center_x = x
-        self.cursor_hand.center_y = y
-
     def on_key_press(self, key, modifiers):
         self.window_key_router(key)
 
@@ -196,6 +185,10 @@ class HomeView(arcade.View):
         if key == arcade.key.LCTRL:
             self.item_popup_background = False
 
+    def set_cursor_position(self, x, y):
+        self.cursor_hand.center_x = x
+        self.cursor_hand.center_y = y
+
     def item_background_popup_show(self):
         if self.item_popup_background:
             collision = arcade.check_for_collision_with_list(
@@ -209,14 +202,26 @@ class HomeView(arcade.View):
                     150,
                     arcade.load_texture(":assets:gui/item_popup_background.png"),
                 )
-                y_offset = 140
+                arcade.Text(
+                    icon.item_referenced.name.title().replace("_", " "),
+                    icon.center_x - 85,
+                    icon.center_y + 145,
+                    arcade.color.BLEU_DE_FRANCE,
+                    14,
+                    bold=True,
+                    align="center",
+                    width=170,
+                ).draw()
+                y_offset = 120
                 for stat, value in icon.item_referenced.stats.items():
                     arcade.Text(
                         f"{stat}: {value}",
-                        icon.center_x - 70,
+                        icon.center_x - 75,
                         icon.center_y + y_offset,
                         arcade.color.WHITE,
-                        14,
+                        12,
+                        align="center",
+                        width=150,
                     ).draw()
                     y_offset -= 25
 
@@ -312,6 +317,9 @@ class HomeView(arcade.View):
                 icon.item_referenced.kill()
                 icon.kill()
                 self.refresh_all_windows()
+                self.sound = arcade.Sound(":assets:sounds/inventory/equip.mp3").play(
+                    volume=self.sound_volume
+                )
 
     def inv_icon_to_equip_check(self, x, y):
         collision_icon = arcade.check_for_collision_with_list(
@@ -374,7 +382,7 @@ class HomeView(arcade.View):
                     self.inventory_display()
                     self.inventory_window.position_icons(self.inventory_icon_list)
                 elif button.description == "vault":
-                    self.vault_window_display()
+                    self.vault_display()
                 elif button.description == "trade":
                     print("Trading")
                 elif button.description == "upgrade":
@@ -400,6 +408,7 @@ class HomeView(arcade.View):
         )
         self.position_inventory()
         self.right_side_button_list[0].state = True
+        self.background = arcade.load_texture(":assets:background/4.png")
 
     def inventory_display_from_upgrade(self):
         self.inventory_window = Inventory(
@@ -409,8 +418,7 @@ class HomeView(arcade.View):
         self.right_side_button_list[3].state = True
 
     def refresh_inventory_window(self):
-        if self.inventory_window:
-            self.inventory_window.position_icons(self.inventory_icon_list)
+        self.inventory_window.position_icons(self.inventory_icon_list)
 
     def inventory_deactivate(self):
         self.inventory_window = None
@@ -421,10 +429,11 @@ class HomeView(arcade.View):
         )
         self.inventory_window.center_y = GAME_HEIGHT / 2
 
-    def vault_window_display(self):
+    def vault_display(self):
         self.vault_window = Vault(":assets:gui/vault.png", INGAME_WINDOW_SCALE)
         self.position_vault_window()
         self.right_side_button_list[1].state = True
+        self.background = arcade.load_texture(":assets:background/4.png")
 
     def position_vault_window(self):
         self.vault_window.center_x = GAME_WIDTH - self.vault_window.width / 2 - 65
@@ -445,7 +454,6 @@ class HomeView(arcade.View):
         self.deactivate_all_windows()
         self.deactivate_all_buttons()
         self.upgrading = False
-        self.background = arcade.load_texture(":assets:background/4.png")
 
     def refresh_all_windows(self):
         if self.inventory_window:
@@ -466,7 +474,7 @@ class HomeView(arcade.View):
                 self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:
                 self.deactivate_all_buttons_windows()
-                self.vault_window_display()
+                self.vault_display()
 
         if key == arcade.key.T:
             print("trade")
@@ -492,43 +500,50 @@ class HomeView(arcade.View):
             self.item_popup_background = True
 
     def icon_drop_swap(self, cursor_x, cursor_y):
-        collision = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_list
-        )
-        if collision:
-            for icon in collision:
-                self.cursor_hand.icon_held.center_x, icon.center_x = (
-                    icon.center_x,
-                    self.cursor_hand.icon_held.center_x,
-                )
-                self.cursor_hand.icon_held.center_y, icon.center_y = (
-                    icon.center_y,
-                    self.cursor_hand.icon_held.center_y,
-                )
-                self.cursor_hand.icon_held.inv_pos, icon.inv_pos = (
-                    icon.inv_pos,
-                    self.cursor_hand.icon_held.inv_pos,
-                )
-                index1 = self.inventory_icon_list.index(self.cursor_hand.icon_held)
-                index2 = self.inventory_icon_list.index(icon)
-                self.inventory_icon_list[index1], self.inventory_icon_list[index2] = (
-                    self.inventory_icon_list[index1],
-                    self.inventory_icon_list[index2],
-                )
-        else:
-            for (
-                inv_number,
-                icon_mapped_data,
-            ) in self.inventory_window.mapped_carry_positions.items():
-                if (
-                    cursor_x >= icon_mapped_data["x"]
-                    and cursor_x <= icon_mapped_data["x"] + icon_mapped_data["width"]
-                    and cursor_y <= icon_mapped_data["y"]
-                    and cursor_y >= icon_mapped_data["y"] - icon_mapped_data["height"]
-                    and inv_number
-                    not in [icon.inv_pos for icon in self.inventory_icon_list]
-                ):
-                    self.cursor_hand.icon_held.inv_pos = inv_number
+        if self.inventory_window:
+            collision = arcade.check_for_collision_with_list(
+                self.cursor_hand, self.inventory_icon_list
+            )
+            if collision:
+                for icon in collision:
+                    self.cursor_hand.icon_held.center_x, icon.center_x = (
+                        icon.center_x,
+                        self.cursor_hand.icon_held.center_x,
+                    )
+                    self.cursor_hand.icon_held.center_y, icon.center_y = (
+                        icon.center_y,
+                        self.cursor_hand.icon_held.center_y,
+                    )
+                    self.cursor_hand.icon_held.inv_pos, icon.inv_pos = (
+                        icon.inv_pos,
+                        self.cursor_hand.icon_held.inv_pos,
+                    )
+                    index1 = self.inventory_icon_list.index(self.cursor_hand.icon_held)
+                    index2 = self.inventory_icon_list.index(icon)
+                    (
+                        self.inventory_icon_list[index1],
+                        self.inventory_icon_list[index2],
+                    ) = (
+                        self.inventory_icon_list[index1],
+                        self.inventory_icon_list[index2],
+                    )
+            else:
+                for (
+                    inv_number,
+                    icon_mapped_data,
+                ) in self.inventory_window.mapped_carry_positions.items():
+                    if (
+                        cursor_x >= icon_mapped_data["x"]
+                        and cursor_x
+                        <= icon_mapped_data["x"] + icon_mapped_data["width"]
+                        and cursor_y <= icon_mapped_data["y"]
+                        and cursor_y
+                        >= icon_mapped_data["y"] - icon_mapped_data["height"]
+                        and inv_number
+                        not in [icon.inv_pos for icon in self.inventory_icon_list]
+                    ):
+                        self.cursor_hand.icon_held.inv_pos = inv_number
+
         self.sound = arcade.Sound(":assets:sounds/inventory/item_swap.mp3").play(
             volume=self.sound_volume
         )
@@ -604,12 +619,7 @@ class HomeView(arcade.View):
         item_type = item_map[name]["type"]
         stats = test_item_data.stats
 
-        item = item_type(
-            image,
-            icon,
-            self.player,
-            stats,
-        )
+        item = item_type(image, icon, self.player, stats, name)
         icon = InventoryIcon(
             item.icon_image,
             item,
@@ -669,62 +679,6 @@ class HomeView(arcade.View):
 
     def generate_test_items(self):
         pass
-
-
-class GameWindow(arcade.Window):
-    def __init__(self):
-        super().__init__(GAME_WIDTH, GAME_HEIGHT, WINDOW_TITLE, resizable=True)
-        self.views = {}
-        self.set_min_size(GAME_WIDTH, GAME_HEIGHT)
-        self._fullscreen = False
-
-    def on_key_press(self, symbol: int, modifiers: int):
-        if symbol == key.F11:
-            if self.fullscreen:
-                # Will revert back to window mode using the window's
-                # original size (before fullscreen)
-                self.set_fullscreen(False)
-            else:
-                # By default this enters fullscreen with the primary
-                # monitor's native screen size
-                self.set_fullscreen(True)
-
-    def apply_game_camera(self):
-        """
-        Apply a camera for the game contents.
-        This is temporary until we have a proper camera.
-        """
-        # Set the viewport taking aspect ratio into account.
-        # We add black borders horizontally and vertically if needed
-        expected_width = int(self.height * GAME_ASPECT_RATIO)
-        expected_height = int(expected_width / GAME_ASPECT_RATIO)
-
-        if expected_width > self.width:
-            expected_width = self.width
-            expected_height = int(expected_width / GAME_ASPECT_RATIO)
-
-        blank_space_x = self.width - expected_width
-        blank_space_y = self.height - expected_height
-
-        self.ctx.viewport = (
-            blank_space_x // 2,
-            blank_space_y // 2,
-            expected_width,
-            expected_height,
-        )
-
-        # The projection is constant regardless if window size.
-        # We're simply projecting the same geometry into a larger screen area.
-        self.ctx.projection_2d = 0, GAME_WIDTH, 0, GAME_HEIGHT
-
-    def apply_gui_camera(self):
-        """
-        Apply a camera covering the entire screen regardless
-        of game size. This was mainly intended for the mouse cursor
-        and possibly drawing some nice border graphics when needed.
-        """
-        self.ctx.viewport = 0, 0, self.width, self.height
-        self.ctx.projection_2d = 0, self.width, 0, self.height
 
 
 def main():
