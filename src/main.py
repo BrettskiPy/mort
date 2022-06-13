@@ -6,7 +6,7 @@ from gui import *
 from icon import *
 from item_local_map import item_map
 from game_window import GameWindow
-from animation import Fire
+from animation import UpgradeAnimation
 
 import arcade
 
@@ -29,6 +29,7 @@ class HomeView(arcade.View):
         self.daylight = True
         self.upgrading = False
         self.upgrade_pentagram = None
+        self.upgrade_status = None
 
         # Sprite lists
         self.player_list = None
@@ -36,12 +37,17 @@ class HomeView(arcade.View):
         self.right_side_button_list = None
         self.inventory_list = None
 
-        # fire animation preloading
-        self.fire = False
-        self.fire_list = None
-        self.fire_texture_list = []
-        file_name = ":assets:/animations/particlefx_14.png"
-        self.fire_texture_list = arcade.load_spritesheet(file_name, 128, 128, 8, 64)
+        # Animations
+        self.upgrade_animation_list = None
+        self.upgrade_fail_texture_list = []
+        fail_animation = ":assets:/animations/smoke_cloud.png"
+        self.upgrade_fail_texture_list = arcade.load_spritesheet(
+            fail_animation, 128, 128, 8, 128
+        )
+        success_animation = ":assets:/animations/fire_ring.png"
+        self.upgrade_success_texture_list = arcade.load_spritesheet(
+            success_animation, 128, 128, 8, 64
+        )
 
         # Equipped lists
         self.equipped_list = None
@@ -67,7 +73,6 @@ class HomeView(arcade.View):
         self.sound_volume = 0.5
 
     def setup(self):
-
         # Sprite lists
         self.inventory_list = arcade.SpriteList()
         self.inventory_slot_list = arcade.SpriteList()
@@ -78,7 +83,7 @@ class HomeView(arcade.View):
         self.inventory_icon_list = arcade.SpriteList()
         self.inventory_icon_slot_list = arcade.SpriteList()
         # Sprite animation lists
-        self.fire_list = arcade.SpriteList()
+        self.upgrade_animation_list = arcade.SpriteList()
 
         # Create sprites
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
@@ -147,7 +152,7 @@ class HomeView(arcade.View):
 
         # draw animations
 
-        self.fire_list.draw()
+        self.upgrade_animation_list.draw()
 
         # self.cursor_hand.draw_hit_box(color=arcade.color.RED, line_thickness=1)  # debug visual
 
@@ -158,20 +163,7 @@ class HomeView(arcade.View):
         # Individual sprite updates
         self.cursor_hand.on_update()
 
-        self.fire_list.update()
-        if self.fire:
-            # Make an explosion
-            explosion = Fire(self.fire_texture_list)
-
-            # Move it to the location of the coin
-            explosion.center_x = 370
-            explosion.center_y = 300
-
-            # Call update() because it sets which image we start on
-            explosion.update()
-
-            # Add to a list of sprites that are explosions
-            self.fire_list.append(explosion)
+        self.animate_item_upgrade()
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
         self.set_cursor_position(x, y)
@@ -203,6 +195,23 @@ class HomeView(arcade.View):
     def on_key_press(self, key, modifiers):
         self.window_key_router(key)
 
+        # fixme test functionality below
+        if key == arcade.key.UP:
+            self.upgrade_status = "success"
+            arcade.Sound(
+                file_name=":assets:sounds/upgrade/success_fire.mp3", streaming=True
+            ).play(speed=1)
+        if key == arcade.key.DOWN:
+            self.upgrade_status = "failure"
+            arcade.Sound(
+                file_name=":assets:sounds/upgrade/fail_smoke.mp3", streaming=True
+            ).play(speed=0.8)
+            extra_evil_laugh_chance = random.randint(1, 5)
+            if extra_evil_laugh_chance == 5:
+                arcade.Sound(
+                    file_name=":assets:sounds/upgrade/evil_laugh.mp3", streaming=True
+                ).play(speed=0.7)
+
         # FIXME key x is test
         if key == arcade.key.X:
             self.generate_test_server_items()
@@ -214,8 +223,8 @@ class HomeView(arcade.View):
         if key == arcade.key.LCTRL:
             self.item_popup_background = False
 
-        if key == arcade.key.T:
-            self.fire = False
+        if key == arcade.key.UP or key == arcade.key.DOWN:
+            self.upgrade_status = None
 
     def set_cursor_position(self, x, y):
         self.cursor_hand.center_x = x
@@ -510,7 +519,6 @@ class HomeView(arcade.View):
 
         if key == arcade.key.T:
             print("trade")
-            self.fire = True
 
         if key == arcade.key.U:
             if self.upgrading:
@@ -659,6 +667,18 @@ class HomeView(arcade.View):
             self.inventory_icon_list,
         )
         self.inventory_icon_list.append(icon)
+
+    def animate_item_upgrade(self):
+        self.upgrade_animation_list.update()
+        if self.upgrade_status in ("success", "failure"):
+            if self.upgrade_status == "success":
+                upgrade_animation = UpgradeAnimation(self.upgrade_success_texture_list)
+            elif self.upgrade_status == "failure":
+                upgrade_animation = UpgradeAnimation(self.upgrade_fail_texture_list)
+            upgrade_animation.center_x = 370
+            upgrade_animation.center_y = 300
+            upgrade_animation.update()
+            self.upgrade_animation_list.append(upgrade_animation)
 
     # --------------------------------- Item generation functions used for testing -------------------
     def generate_test_server_items(self):

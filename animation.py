@@ -1,6 +1,6 @@
 import arcade
 
-class Fire(arcade.Sprite):
+class UpgradeAnimation(arcade.Sprite):
     """ This class creates an explosion animation """
 
     def __init__(self, texture_list):
@@ -12,8 +12,6 @@ class Fire(arcade.Sprite):
 
     def update(self):
 
-        # Update to the next frame of the animation. If we are at the end
-        # of our frames, then delete this sprite.
         self.current_texture += 1
         if self.current_texture < len(self.textures):
             self.set_texture(self.current_texture)
