@@ -1,6 +1,7 @@
 from constants import *
 
 import arcade
+from arcade import color
 
 
 class HandCursor(arcade.Sprite):
@@ -30,7 +31,7 @@ class MenuButton(arcade.Sprite):
     def display_clicked(self):
         if self.state:
             arcade.draw_rectangle_outline(
-                self.center_x, self.center_y, 54, 54, arcade.color.GOLD, 3
+                self.center_x, self.center_y, 54, 54, color.GOLD, 3
             )
 
 
@@ -52,15 +53,15 @@ class Vault(arcade.Sprite):
     def __init__(self, filename, scale=CURSOR_SCALE, open=False):
         super().__init__(filename, scale)
         self.open = open
-        self.mapped_carry_positions = self.mapped_carry_positions()
+        self.mapped_carry_positions: dict = self.map_carry_positions()
 
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
             arcade.draw_rectangle_outline(
-                v["x"], v["y"], v["width"], v["height"], color=arcade.color.LAVA
+                v["x"], v["y"], v["width"], v["height"], color=color.LAVA
             )
 
-    def mapped_carry_positions(self):
+    def map_carry_positions(self):
         # FIXME This function is trash but works.....
         center_x = 713
         center_y = 594
@@ -188,8 +189,8 @@ class Inventory(arcade.Sprite):
     def __init__(self, filename, scale=CURSOR_SCALE, open=False):
         super().__init__(filename, scale)
         self.open = open
-        self.mapped_carry_positions = self.mapped_carry_positions()
-        self.mapped_slot_positions = self.mapped_slot_positions()
+        self.mapped_carry_positions: dict = self.map_carry_positions()
+        self.mapped_slot_positions: dict = self.map_slot_positions()
 
     def position_icons(self, icon_list):
         if icon_list:
@@ -200,15 +201,15 @@ class Inventory(arcade.Sprite):
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
             arcade.draw_rectangle_outline(
-                v["x"], v["y"], v["width"], v["height"], color=arcade.color.GREEN
+                v["x"], v["y"], v["width"], v["height"], color=color.GREEN
             )
 
         for v in self.mapped_slot_positions.values():
             arcade.draw_rectangle_outline(
-                v["x"], v["y"], v["width"], v["height"], color=arcade.color.RUBY
+                v["x"], v["y"], v["width"], v["height"], color=color.RUBY
             )
 
-    def mapped_slot_positions(self):
+    def map_slot_positions(self):
         width = 62
         height = 62
         map_data = dict()
@@ -238,7 +239,7 @@ class Inventory(arcade.Sprite):
 
         return map_data
 
-    def mapped_carry_positions(self):
+    def map_carry_positions(self):
         # FIXME clean this function up
         center_y = 235
         width_step = 63

@@ -9,6 +9,7 @@ from game_window import GameWindow
 from animation import UpgradeAnimation
 
 import arcade
+from arcade import color, key, resources
 
 # TODO remove this when server is done
 @dataclass
@@ -22,24 +23,31 @@ class HomeView(arcade.View):
         super().__init__()
 
         # Background image will be stored in this variable
-        self.background = None
+        self.background: arcade.Texture = arcade.load_texture(
+            ":assets:background/4.png"
+        )
 
         # Local game states
         self.time_of_day = 255
         self.daylight = True
         self.upgrading = False
-        self.upgrade_pentagram = None
+        self.upgrade_pentagram: arcade.Sprite = arcade.Sprite(
+            ":assets:gui/upgrade_area/pentagram.png",
+            0.9,
+            center_x=375,
+            center_y=GAME_HEIGHT / 2 - 75,
+        )
         self.upgrade_status = None
 
         # Sprite lists
-        self.player_list = None
-        self.static_gui_list = None
-        self.right_side_button_list = None
-        self.inventory_list = None
+        self.player_list: arcade.SpriteList = arcade.SpriteList()
+        self.inventory_slot_list: arcade.SpriteList = arcade.SpriteList()
+        self.static_gui_list: arcade.SpriteList = arcade.SpriteList()
+        self.right_side_button_list: arcade.SpriteList = arcade.SpriteList()
+        self.inventory_list: arcade.SpriteList = arcade.SpriteList()
 
         # Animations
-        self.upgrade_animation_list = None
-        self.upgrade_fail_texture_list = []
+        self.upgrade_animation_list: arcade.SpriteList = arcade.SpriteList()
         fail_animation = ":assets:/animations/smoke_cloud.png"
         self.upgrade_fail_texture_list = arcade.load_spritesheet(
             fail_animation, 128, 128, 8, 128
@@ -50,66 +58,50 @@ class HomeView(arcade.View):
         )
 
         # Equipped lists
-        self.equipped_list = None
+        self.equipped_list: arcade.SpriteList = arcade.SpriteList()
 
         # Icons lists
-        self.inventory_icon_list = None
-        self.inventory_icon_slot_list = None
+        self.inventory_icon_list: arcade.SpriteList = arcade.SpriteList()
+        self.inventory_icon_slot_list: arcade.SpriteList = arcade.SpriteList()
 
         # Sprite variables
-        self.player = None
-        self.cursor_hand = None
-        self.inventory_window = None
-        self.vault_window = None
-        self.portrait_frame = None
-        self.portrait = None
-        self.total_item_stats = None
-        self.item_popup_background = None
+        self.player: Player = Player(":assets:base/demigod_male.png", PLAYER_SCALE)
+        self.cursor_hand: HandCursor = HandCursor(
+            ":assets:cursor/glove_point.png", CURSOR_SCALE
+        )
+        self.inventory_window: Inventory = Inventory(
+            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
+        )
+        self.show_inventory_window: bool = False
+        self.vault_window: Vault = Vault(":assets:gui/vault.png", INGAME_WINDOW_SCALE)
+        self.show_vault_window: bool = False
+        self.portrait_frame: PortraitFrame = PortraitFrame(
+            ":assets:gui/portrait_frame/portrait_frame.png",
+            PORTRAIT_PANEL_SCALE,
+        )
+        self.portrait: Portrait = Portrait(
+            ":assets:gui/portraits/23.png",
+            PORTRAIT_SCALE,
+        )
+        self.total_item_stats: dict = {}
+        self.item_popup_background: bool = False
 
         # Sound and music
-        self.music_player = None
+        self.music_player: arcade.Sound = arcade.Sound(
+            file_name=":assets:music/the_field_of_dreams.mp3", streaming=True
+        )
         self.music_volume = 1
-        self.sound = None
+        self.sound: arcade.Sound = arcade.Sound(":assets:sounds/inventory/equip.mp3")
         self.sound_volume = 0.5
 
     def setup(self):
-        # Sprite lists
-        self.inventory_list = arcade.SpriteList()
-        self.inventory_slot_list = arcade.SpriteList()
-        self.player_list = arcade.SpriteList()
-        self.static_gui_list = arcade.SpriteList()
-        self.right_side_button_list = arcade.SpriteList()
-        self.equipped_list = arcade.SpriteList()
-        self.inventory_icon_list = arcade.SpriteList()
-        self.inventory_icon_slot_list = arcade.SpriteList()
-        # Sprite animation lists
-        self.upgrade_animation_list = arcade.SpriteList()
-
-        # Create sprites
-        self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
-        self.player = Player(":assets:base/demigod_male.png", PLAYER_SCALE)
         self.player_list.append(self.player)
-
         self.generate_test_items()  # item test creation
-
-        # Generate GUI
-        self.portrait_frame = PortraitFrame(
-            ":assets:gui/portrait_frame/portrait_frame.png", PORTRAIT_PANEL_SCALE
-        )
-        self.portrait = Portrait(":assets:gui/portraits/23.png", PORTRAIT_SCALE)
-        self.background = arcade.load_texture(":assets:background/4.png")
         self.generate_home_right_panel()
-        self.upgrade_pentagram = arcade.Sprite(
-            ":assets:gui/upgrade_area/pentagram.png",
-            0.9,
-            center_x=375,
-            center_y=GAME_HEIGHT / 2 - 75,
+        self.music_player.play(
+            loop=True,
+            speed=0.6,
         )
-
-        # Sound and Music
-        self.music_player = arcade.Sound(
-            file_name=":assets:music/the_field_of_dreams.mp3", streaming=True
-        ).play(loop=True, speed=0.6)
 
     def on_draw(self):
         self.window.apply_gui_camera()
@@ -128,7 +120,7 @@ class HomeView(arcade.View):
         if self.upgrading:
             self.upgrade_pentagram.draw(pixelated=True)
 
-        if self.inventory_window:
+        if self.show_inventory_window:
             self.inventory_window.draw(pixelated=True)
             # self.inventory_window.display_positions()  # debugging visual
             self.inventory_icon_list.draw(pixelated=True)
@@ -137,10 +129,9 @@ class HomeView(arcade.View):
             if self.item_popup_background:
                 self.item_background_popup_show()
 
-        if self.vault_window:
+        if self.show_vault_window:
             self.vault_window.draw(pixelated=True)
             # self.vault_window.display_positions()  # debugging visual
-
         for button in self.right_side_button_list:
             if button.state:
                 button.display_clicked()
@@ -151,10 +142,9 @@ class HomeView(arcade.View):
         self.cursor_hand.draw()
 
         # draw animations
-
         self.upgrade_animation_list.draw()
 
-        # self.cursor_hand.draw_hit_box(color=arcade.color.RED, line_thickness=1)  # debug visual
+        # self.cursor_hand.draw_hit_box(color=color.RED, line_thickness=1)  # debug visual
 
     def on_update(self, delta_time):
         # List updates
@@ -192,16 +182,16 @@ class HomeView(arcade.View):
         if button == arcade.MOUSE_BUTTON_RIGHT:
             pass
 
-    def on_key_press(self, key, modifiers):
-        self.window_key_router(key)
+    def on_key_press(self, key_pressed, modifiers):
+        self.window_key_router(key_pressed, modifiers)
 
         # fixme test functionality below
-        if key == arcade.key.UP:
+        if key_pressed == key.UP:
             self.upgrade_status = "success"
             arcade.Sound(
                 file_name=":assets:sounds/upgrade/success_fire.mp3", streaming=True
             ).play(speed=1)
-        if key == arcade.key.DOWN:
+        if key_pressed == key.DOWN:
             self.upgrade_status = "failure"
             arcade.Sound(
                 file_name=":assets:sounds/upgrade/fail_smoke.mp3", streaming=True
@@ -213,17 +203,17 @@ class HomeView(arcade.View):
                 ).play(speed=0.7)
 
         # FIXME key x is test
-        if key == arcade.key.X:
+        if key_pressed == key.X:
             self.generate_test_server_items()
-            if self.inventory_window:
+            if self.show_inventory_window:
                 self.inventory_window.position_icons(self.inventory_icon_list)
 
-    def on_key_release(self, key, modifiers):
+    def on_key_release(self, key_pressed, modifiers):
         """Called when the user releases a key."""
-        if key == arcade.key.LCTRL:
+        if key_pressed == key.LCTRL:
             self.item_popup_background = False
 
-        if key == arcade.key.UP or key == arcade.key.DOWN:
+        if key_pressed in (key.UP, key.DOWN):
             self.upgrade_status = None
 
     def set_cursor_position(self, x, y):
@@ -231,43 +221,41 @@ class HomeView(arcade.View):
         self.cursor_hand.center_y = y
 
     def item_background_popup_show(self):
-        if self.item_popup_background:
-            collision = arcade.check_for_collision_with_list(
-                self.cursor_hand, self.inventory_icon_list
+        collision = arcade.check_for_collision_with_list(
+            self.cursor_hand, self.inventory_icon_list
+        )
+        for icon in collision:
+            arcade.draw_texture_rectangle(
+                icon.center_x,
+                icon.center_y + 100,
+                200,
+                150,
+                arcade.load_texture(":assets:gui/item_popup_background.png"),
             )
-            for icon in collision:
-                arcade.draw_texture_rectangle(
-                    icon.center_x,
-                    icon.center_y + 100,
-                    200,
-                    150,
-                    arcade.load_texture(":assets:gui/item_popup_background.png"),
-                )
+            arcade.Text(
+                icon.item_referenced.name.title().replace("_", " "),
+                icon.center_x - 85,
+                icon.center_y + 145,
+                color.BLEU_DE_FRANCE,
+                14,
+                bold=True,
+                align="center",
+                width=170,
+            ).draw()
+            y_offset = 120
+            for stat, value in icon.item_referenced.stats.items():
                 arcade.Text(
-                    icon.item_referenced.name.title().replace("_", " "),
-                    icon.center_x - 85,
-                    icon.center_y + 145,
-                    arcade.color.BLEU_DE_FRANCE,
-                    14,
-                    bold=True,
+                    f"{stat}: {value}",
+                    icon.center_x - 75,
+                    icon.center_y + y_offset,
+                    color.WHITE,
+                    12,
                     align="center",
-                    width=170,
+                    width=150,
                 ).draw()
-                y_offset = 120
-                for stat, value in icon.item_referenced.stats.items():
-                    arcade.Text(
-                        f"{stat}: {value}",
-                        icon.center_x - 75,
-                        icon.center_y + y_offset,
-                        arcade.color.WHITE,
-                        12,
-                        align="center",
-                        width=150,
-                    ).draw()
-                    y_offset -= 25
+                y_offset -= 25
 
     def calculate_total_item_stats(self):
-        self.total_item_stats = dict()
         for item in self.equipped_list:
             for stat, value in item.stats.items():
                 if self.total_item_stats.get(stat):
@@ -292,7 +280,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             armor_text_y,
-                            arcade.color.RED_PURPLE,
+                            color.RED_PURPLE,
                             12,
                             align="left",
                         ).draw()
@@ -301,7 +289,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             armor_text_y,
-                            arcade.color.ASH_GREY,
+                            color.ASH_GREY,
                             12,
                             align="left",
                         ).draw()
@@ -312,7 +300,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             weapon_text_y,
-                            arcade.color.ASH_GREY,
+                            color.ASH_GREY,
                             12,
                             align="left",
                         ).draw()
@@ -321,7 +309,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             weapon_text_y,
-                            arcade.color.RED,
+                            color.RED,
                             12,
                             align="left",
                         ).draw()
@@ -330,7 +318,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             weapon_text_y,
-                            arcade.color.CYAN,
+                            color.CYAN,
                             12,
                             align="left",
                         ).draw()
@@ -358,9 +346,7 @@ class HomeView(arcade.View):
                 icon.item_referenced.kill()
                 icon.kill()
                 self.refresh_all_windows()
-                self.sound = arcade.Sound(":assets:sounds/inventory/equip.mp3").play(
-                    volume=self.sound_volume
-                )
+                self.sound.play(volume=self.sound_volume)
 
     def inv_icon_to_equip_check(self, x, y):
         collision_icon = arcade.check_for_collision_with_list(
@@ -444,9 +430,7 @@ class HomeView(arcade.View):
         self.right_side_bar.center_y = GAME_HEIGHT / 2
 
     def inventory_display(self):
-        self.inventory_window = Inventory(
-            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
-        )
+        self.show_inventory_window = True
         self.position_inventory()
         self.right_side_button_list[0].state = True
         self.background = arcade.load_texture(":assets:background/4.png")
@@ -462,7 +446,7 @@ class HomeView(arcade.View):
         self.inventory_window.position_icons(self.inventory_icon_list)
 
     def inventory_deactivate(self):
-        self.inventory_window = None
+        self.show_inventory_window = False
 
     def position_inventory(self):
         self.inventory_window.center_x = (
@@ -471,7 +455,7 @@ class HomeView(arcade.View):
         self.inventory_window.center_y = GAME_HEIGHT / 2
 
     def vault_display(self):
-        self.vault_window = Vault(":assets:gui/vault.png", INGAME_WINDOW_SCALE)
+        self.show_vault_window = True
         self.position_vault_window()
         self.right_side_button_list[1].state = True
         self.background = arcade.load_texture(":assets:background/4.png")
@@ -481,7 +465,7 @@ class HomeView(arcade.View):
         self.vault_window.center_y = GAME_HEIGHT / 2
 
     def vault_window_deactivate(self):
-        self.vault_window = None
+        self.show_vault_window = False  # type: ignore
 
     def deactivate_all_windows(self):
         self.inventory_deactivate()
@@ -497,30 +481,30 @@ class HomeView(arcade.View):
         self.upgrading = False
 
     def refresh_all_windows(self):
-        if self.inventory_window:
+        if self.show_inventory_window:
             self.refresh_inventory_window()
 
-    def window_key_router(self, key):
+    def window_key_router(self, key_pressed, modifiers):
         # TODO refactor this into a clean function
-        if key == arcade.key.I:
-            if self.inventory_window:
+        if key_pressed == key.I:
+            if self.show_inventory_window:
                 self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:
                 self.deactivate_all_buttons_windows()
                 self.inventory_display()
                 self.inventory_window.position_icons(self.inventory_icon_list)
 
-        if key == arcade.key.V:
-            if self.vault_window:
+        if key_pressed == key.V:
+            if self.show_vault_window:
                 self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:
                 self.deactivate_all_buttons_windows()
                 self.vault_display()
 
-        if key == arcade.key.T:
+        if key_pressed == key.T:
             print("trade")
 
-        if key == arcade.key.U:
+        if key_pressed == key.U:
             if self.upgrading:
                 self.deactivate_all_buttons_windows()
             else:
@@ -531,17 +515,17 @@ class HomeView(arcade.View):
                 self.inventory_window.position_icons(self.inventory_icon_list)
                 self.upgrading = True
 
-        if key == arcade.key.P:
+        if key_pressed == key.P:
             print("portals")
 
-        if key == arcade.key.F:
+        if key_pressed == key.F:
             print("fight")
 
-        if key == arcade.key.LCTRL:
+        if key_pressed == key.LCTRL or modifiers == key.MOD_CTRL:
             self.item_popup_background = True
 
     def icon_drop_swap(self, cursor_x, cursor_y):
-        if self.inventory_window:
+        if self.show_inventory_window:
             collision = arcade.check_for_collision_with_list(
                 self.cursor_hand, self.inventory_icon_list
             )
@@ -585,9 +569,8 @@ class HomeView(arcade.View):
                     ):
                         self.cursor_hand.icon_held.inv_pos = inv_number
 
-        self.sound = arcade.Sound(":assets:sounds/inventory/item_swap.mp3").play(
-            volume=self.sound_volume
-        )
+        self.sound = arcade.Sound(":assets:sounds/inventory/item_swap.mp3")
+        self.sound.play(volume=self.sound_volume)
         self.refresh_all_windows()
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
         self.set_cursor_position(cursor_x, cursor_y)
@@ -599,9 +582,8 @@ class HomeView(arcade.View):
                 self.equip_swap(icon, item_type)
             else:
                 self.equip_empty_slot(icon)
-        self.sound = arcade.Sound(":assets:sounds/inventory/equip.mp3").play(
-            volume=self.sound_volume
-        )
+        self.sound = arcade.Sound(":assets:sounds/inventory/equip.mp3")
+        self.sound.play(volume=self.sound_volume)
         self.refresh_all_windows()
         icon.kill()
 
@@ -669,6 +651,9 @@ class HomeView(arcade.View):
         self.inventory_icon_list.append(icon)
 
     def animate_item_upgrade(self):
+        upgrade_animation: UpgradeAnimation = UpgradeAnimation(
+            self.upgrade_success_texture_list
+        )
         self.upgrade_animation_list.update()
         if self.upgrade_status in ("success", "failure"):
             if self.upgrade_status == "success":
@@ -735,7 +720,7 @@ class HomeView(arcade.View):
 
 
 def main():
-    arcade.resources.add_resource_handle("assets", ASSETS_PATH)
+    resources.add_resource_handle("assets", ASSETS_PATH)
     window = GameWindow()
     window.center_window()
     home_view = HomeView()
