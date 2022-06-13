@@ -6,6 +6,7 @@ from gui import *
 from icon import *
 from item_local_map import item_map
 from game_window import GameWindow
+from animation import Fire
 
 import arcade
 
@@ -34,6 +35,13 @@ class HomeView(arcade.View):
         self.static_gui_list = None
         self.right_side_button_list = None
         self.inventory_list = None
+
+        # fire animation preloading
+        self.fire = False
+        self.fire_list = None
+        self.fire_texture_list = []
+        file_name = ":assets:/animations/particlefx_14.png"
+        self.fire_texture_list = arcade.load_spritesheet(file_name, 128, 128, 8, 64)
 
         # Equipped lists
         self.equipped_list = None
@@ -69,6 +77,8 @@ class HomeView(arcade.View):
         self.equipped_list = arcade.SpriteList()
         self.inventory_icon_list = arcade.SpriteList()
         self.inventory_icon_slot_list = arcade.SpriteList()
+        # Sprite animation lists
+        self.fire_list = arcade.SpriteList()
 
         # Create sprites
         self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
@@ -135,6 +145,10 @@ class HomeView(arcade.View):
 
         self.cursor_hand.draw()
 
+        # draw animations
+
+        self.fire_list.draw()
+
         # self.cursor_hand.draw_hit_box(color=arcade.color.RED, line_thickness=1)  # debug visual
 
     def on_update(self, delta_time):
@@ -143,6 +157,21 @@ class HomeView(arcade.View):
 
         # Individual sprite updates
         self.cursor_hand.on_update()
+
+        self.fire_list.update()
+        if self.fire:
+            # Make an explosion
+            explosion = Fire(self.fire_texture_list)
+
+            # Move it to the location of the coin
+            explosion.center_x = 370
+            explosion.center_y = 300
+
+            # Call update() because it sets which image we start on
+            explosion.update()
+
+            # Add to a list of sprites that are explosions
+            self.fire_list.append(explosion)
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
         self.set_cursor_position(x, y)
@@ -184,6 +213,9 @@ class HomeView(arcade.View):
         """Called when the user releases a key."""
         if key == arcade.key.LCTRL:
             self.item_popup_background = False
+
+        if key == arcade.key.T:
+            self.fire = False
 
     def set_cursor_position(self, x, y):
         self.cursor_hand.center_x = x
@@ -478,6 +510,7 @@ class HomeView(arcade.View):
 
         if key == arcade.key.T:
             print("trade")
+            self.fire = True
 
         if key == arcade.key.U:
             if self.upgrading:
