@@ -2,25 +2,43 @@ from constants import *
 
 from arcade import key
 import arcade
+from pypresence import Presence
 
 
 class GameWindow(arcade.Window):
     def __init__(self):
-        super().__init__(GAME_WIDTH, GAME_HEIGHT, WINDOW_TITLE, resizable=True)
+        super().__init__(GAME_WIDTH, GAME_HEIGHT, WINDOW_TITLE, resizable=True)  # type: ignore
         self.views = {}
         self.set_min_size(GAME_WIDTH, GAME_HEIGHT)
         self._fullscreen = False
+    
+    def setup_discord_rpc(self):
+        def connect_pipe(pipe:int=0):
+            try:
+                discord_rpc = Presence(CLIENT_ID, pipe=pipe)
+                discord_rpc.connect()
+                return discord_rpc
+            except:
+                if pipe == 9:
+                    return
+                return connect_pipe(pipe+1)
+        self.discord_rpc = connect_pipe()
+        if self.discord_rpc:
+            self.discord_rpc.update(
+            **DISCORD_RPC_ASSETS
+            )
+                
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == key.F11:
             if self.fullscreen:
                 # Will revert back to window mode using the window's
                 # original size (before fullscreen)
-                self.set_fullscreen(False)
+                self.set_fullscreen(False)  # type: ignore
             else:
                 # By default this enters fullscreen with the primary
                 # monitor's native screen size
-                self.set_fullscreen(True)
+                self.set_fullscreen(True)  # type: ignore
 
     def apply_game_camera(self):
         """
