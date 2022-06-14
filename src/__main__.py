@@ -436,6 +436,7 @@ class HomeView(arcade.View):
                     self.inventory_display_from_upgrade()
                     self.inventory_window.position_icons(self.inventory_icon_list)
                     self.upgrading = True
+                    self.show_inventory_window = True
                 elif button.description == "portals":
                     print("portaling")
                 elif button.description == "fight":
@@ -530,6 +531,7 @@ class HomeView(arcade.View):
                 self.inventory_display_from_upgrade()
                 self.inventory_window.position_icons(self.inventory_icon_list)
                 self.upgrading = True
+                self.show_inventory_window = True
 
         if key_pressed == key.P:
             print("portals")
