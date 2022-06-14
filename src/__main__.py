@@ -9,7 +9,7 @@ from game_window import GameWindow
 from animation import UpgradeAnimation
 
 import arcade
-from arcade import color, key, resources
+from arcade import color as arcade_color, key, resources
 
 # TODO remove this when server is done
 @dataclass
@@ -143,8 +143,11 @@ class HomeView(arcade.View):
             self.vault_window.draw(pixelated=True)
             # self.vault_window.display_positions()  # debugging visual
         for button in self.right_side_button_list:
-            if button.state:
-                button.display_clicked()
+            if isinstance(
+                button, MenuButton
+            ):  # In case the button isn't a MenuButton and yes, linters hate it when we don't do this
+                if button.state:
+                    button.display_clicked()
 
         if self.cursor_hand.holding_icon:
             self.cursor_hand.grab_icon()
@@ -154,7 +157,7 @@ class HomeView(arcade.View):
         # draw animations
         self.upgrade_animation_list.draw()
 
-        # self.cursor_hand.draw_hit_box(color=color.RED, line_thickness=1)  # debug visual
+        # self.cursor_hand.draw_hit_box(color=arcade_color.RED, line_thickness=1)  # debug visual
 
     def on_update(self, delta_time):
         # List updates
@@ -235,6 +238,8 @@ class HomeView(arcade.View):
             self.cursor_hand, self.inventory_icon_list
         )
         for icon in collision:
+            if not isinstance(icon, InventoryIcon):  # linters 😔
+                return
             arcade.draw_texture_rectangle(
                 icon.center_x,
                 icon.center_y + 100,
@@ -246,7 +251,7 @@ class HomeView(arcade.View):
                 icon.item_referenced.name.title().replace("_", " "),
                 icon.center_x - 85,
                 icon.center_y + 145,
-                color.BLEU_DE_FRANCE,
+                arcade_color.BLEU_DE_FRANCE,
                 14,
                 bold=True,
                 align="center",
@@ -258,7 +263,7 @@ class HomeView(arcade.View):
                     f"{stat}: {value}",
                     icon.center_x - 75,
                     icon.center_y + y_offset,
-                    color.WHITE,
+                    arcade_color.WHITE,
                     12,
                     align="center",
                     width=150,
@@ -291,7 +296,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             armor_text_y,
-                            color.RED_PURPLE,
+                            arcade_color.RED_PURPLE,
                             12,
                             align="left",
                         ).draw()
@@ -300,7 +305,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             armor_text_y,
-                            color.ASH_GREY,
+                            arcade_color.ASH_GREY,
                             12,
                             align="left",
                         ).draw()
@@ -311,7 +316,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             weapon_text_y,
-                            color.ASH_GREY,
+                            arcade_color.ASH_GREY,
                             12,
                             align="left",
                         ).draw()
@@ -320,7 +325,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             weapon_text_y,
-                            color.RED,
+                            arcade_color.RED,
                             12,
                             align="left",
                         ).draw()
@@ -329,7 +334,7 @@ class HomeView(arcade.View):
                             f"{stat}: {value}",
                             stat_x_pos,
                             weapon_text_y,
-                            color.CYAN,
+                            arcade_color.CYAN,
                             12,
                             align="left",
                         ).draw()
