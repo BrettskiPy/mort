@@ -54,7 +54,11 @@ class HomeView(arcade.View):
         )
         success_animation = ":assets:/animations/fire_ring.png"
         self.upgrade_success_texture_list = arcade.load_spritesheet(
-            success_animation, 128, 128, 8, 64
+            file_name=success_animation,
+            sprite_width=128,
+            sprite_height=128,
+            columns=8,
+            count=64,
         )
 
         # Equipped lists
@@ -67,13 +71,18 @@ class HomeView(arcade.View):
         # Sprite variables
         self.player: Player = Player(":assets:base/demigod_male.png", PLAYER_SCALE)
         self.cursor_hand: HandCursor = HandCursor(
-            ":assets:cursor/glove_point.png", CURSOR_SCALE
+            ":assets:cursor/glove_point.png",
+            CURSOR_SCALE,
         )
         self.inventory_window: Inventory = Inventory(
-            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
+            ":assets:gui/inventory.png",
+            INGAME_WINDOW_SCALE,
         )
         self.show_inventory_window: bool = False
-        self.vault_window: Vault = Vault(":assets:gui/vault.png", INGAME_WINDOW_SCALE)
+        self.vault_window: Vault = Vault(
+            ":assets:gui/vault.png",
+            INGAME_WINDOW_SCALE,
+        )
         self.show_vault_window: bool = False
         self.portrait_frame: PortraitFrame = PortraitFrame(
             ":assets:gui/portrait_frame/portrait_frame.png",
@@ -88,7 +97,8 @@ class HomeView(arcade.View):
 
         # Sound and music
         self.music_player: arcade.Sound = arcade.Sound(
-            file_name=":assets:music/the_field_of_dreams.mp3", streaming=True
+            file_name=":assets:music/the_field_of_dreams.mp3",
+            streaming=True,
         )
         self.music_volume = 1
         self.sound: arcade.Sound = arcade.Sound(":assets:sounds/inventory/equip.mp3")
@@ -256,6 +266,7 @@ class HomeView(arcade.View):
                 y_offset -= 25
 
     def calculate_total_item_stats(self):
+        self.total_item_stats = {}
         for item in self.equipped_list:
             for stat, value in item.stats.items():
                 if self.total_item_stats.get(stat):
