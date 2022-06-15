@@ -28,6 +28,7 @@ If your soul is intercepted by an Interceptor, there will be a chance your soul 
 
 ### Upgrading
 TODO 
+![](ideas/upgrading.png)
 
 ### OTHER TOPICS 
 TODO
