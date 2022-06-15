@@ -12,5 +12,4 @@ pytiled-parser==2.0.1
 requests==2.27.1
 typing_extensions==4.2.0
 urllib3==1.26.9
-
 pypresence==4.2.1

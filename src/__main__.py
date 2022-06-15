@@ -16,6 +16,9 @@ from arcade import color as arcade_color, key, resources
 class Item:
     name: str
     stats: dict
+    icon_image: str = ""  # Sorry for this too
+    def kill(self):  # Is this gonna change anything? I don't really know 😶
+        pass
 
 
 class HomeView(arcade.View):
@@ -357,7 +360,8 @@ class HomeView(arcade.View):
             self.inventory_icon_slot_list,
         )
         if collision_slot_icon:
-            for icon in collision_slot_icon:
+            for icon in collision_slot_icon:  # type: ignore
+                icon: InventorySlotIcon
                 new_inv_icon = InventoryIcon(
                     icon.filename, icon.item_referenced, self.inventory_icon_list
                 )
@@ -369,7 +373,8 @@ class HomeView(arcade.View):
 
     def inv_icon_to_equip_check(self, x, y):
         collision_icon = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_list
+            self.cursor_hand,
+            self.inventory_icon_list,
         )
         if collision_icon:
             for icon in collision_icon:
@@ -416,9 +421,10 @@ class HomeView(arcade.View):
             height -= 54
 
     def right_panel_onclick_actions(self):
-        for button in arcade.check_for_collision_with_list(
+        for button in arcade.check_for_collision_with_list(  # type: ignore
             self.cursor_hand, self.right_side_button_list
         ):
+            button: MenuButton
             if button.state:
                 self.deactivate_all_buttons_windows()
             else:
@@ -452,7 +458,7 @@ class HomeView(arcade.View):
     def inventory_display(self):
         self.show_inventory_window = True
         self.position_inventory()
-        self.right_side_button_list[0].state = True
+        self.right_side_button_list[0].state = True  # type: ignore
         self.background = arcade.load_texture(":assets:background/4.png")
 
     def inventory_display_from_upgrade(self):
@@ -460,7 +466,7 @@ class HomeView(arcade.View):
             ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
         )
         self.position_inventory()
-        self.right_side_button_list[3].state = True
+        self.right_side_button_list[3].state = True  # type: ignore
 
     def refresh_inventory_window(self):
         self.inventory_window.position_icons(self.inventory_icon_list)
@@ -477,7 +483,7 @@ class HomeView(arcade.View):
     def vault_display(self):
         self.show_vault_window = True
         self.position_vault_window()
-        self.right_side_button_list[1].state = True
+        self.right_side_button_list[1].state = True  # type: ignore
         self.background = arcade.load_texture(":assets:background/4.png")
 
     def position_vault_window(self):
@@ -493,7 +499,7 @@ class HomeView(arcade.View):
 
     def deactivate_all_buttons(self):
         for other_buttons in self.right_side_button_list:
-            other_buttons.state = False
+            other_buttons.state = False  # type: ignore
 
     def deactivate_all_buttons_windows(self):
         self.deactivate_all_windows()
@@ -509,7 +515,7 @@ class HomeView(arcade.View):
         if key_pressed == key.I:
             if self.show_inventory_window:
                 self.deactivate_all_buttons_windows()
-            elif [button.state for button in self.right_side_button_list]:
+            elif [button.state for button in self.right_side_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
                 self.inventory_display()
                 self.inventory_window.position_icons(self.inventory_icon_list)
@@ -517,7 +523,7 @@ class HomeView(arcade.View):
         if key_pressed == key.V:
             if self.show_vault_window:
                 self.deactivate_all_buttons_windows()
-            elif [button.state for button in self.right_side_button_list]:
+            elif [button.state for button in self.right_side_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
                 self.vault_display()
 
@@ -625,9 +631,10 @@ class HomeView(arcade.View):
 
         # FIXME simplify this complex function
         # gets the old equipped item
+        old_equipped_item: Item = None  # type: ignore
         for item in self.equipped_list:
             if isinstance(item, item_type):
-                old_equipped_item = item
+                old_equipped_item = item  # type: ignore
                 break
 
         new_equipped_item = icon.item_referenced
@@ -640,7 +647,8 @@ class HomeView(arcade.View):
             inv_window=self.inventory_window,
         )
 
-        for old_slot_icon in self.inventory_icon_slot_list:
+        for old_slot_icon in self.inventory_icon_slot_list:  # type: ignore
+            old_slot_icon: InventorySlotIcon
             if isinstance(old_slot_icon.item_referenced, item_type):
                 old_slot_icon.kill()
 

@@ -4,7 +4,11 @@ from constants import ICON_SCALE
 
 class InventoryIcon(arcade.Sprite):
     def __init__(
-        self, filename, item_referenced, inventory_icon_list, scale=ICON_SCALE
+        self,
+        filename,
+        item_referenced,
+        inventory_icon_list,
+        scale=ICON_SCALE,
     ):
         super().__init__(filename, scale)
         self.filename = filename
