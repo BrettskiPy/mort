@@ -272,7 +272,8 @@ class HomeView(arcade.View):
 
     def calculate_total_item_stats(self):
         self.total_item_stats = {}
-        for item in self.equipped_list:
+        for item in self.equipped_list:  # type: ignore
+            item: Item
             for stat, value in item.stats.items():
                 if self.total_item_stats.get(stat):
                     self.total_item_stats[stat] += value
@@ -342,7 +343,8 @@ class HomeView(arcade.View):
 
     def cursor_holding_icon_check(self):
         collision = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_list
+            self.cursor_hand,
+            self.inventory_icon_list,
         )
         if collision:
             self.cursor_hand.holding_icon = True
@@ -351,7 +353,8 @@ class HomeView(arcade.View):
 
     def slot_icon_to_inv_check(self):
         collision_slot_icon = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_slot_list
+            self.cursor_hand,
+            self.inventory_icon_slot_list,
         )
         if collision_slot_icon:
             for icon in collision_slot_icon:

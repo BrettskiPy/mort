@@ -14,6 +14,8 @@ class GameWindow(arcade.Window):
     
     def setup_discord_rpc(self):
         def connect_pipe(pipe:int=0):
+            if not isinstance(CLIENT_ID, int):
+                return
             try:
                 discord_rpc = Presence(CLIENT_ID, pipe=pipe)
                 discord_rpc.connect()
@@ -27,7 +29,7 @@ class GameWindow(arcade.Window):
             self.discord_rpc.update(
             **DISCORD_RPC_ASSETS
             )
-                
+
 
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == key.F11:

@@ -1,4 +1,4 @@
-arcade==2.6.14
+arcade==2.6.15
 attrs==21.4.0
 certifi==2021.10.8
 cffi==1.15.0
