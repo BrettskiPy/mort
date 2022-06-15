@@ -11,7 +11,7 @@ free with the eventual possibility for donations to support server costs and eff
 Players have the choice of 4 instanced PVM portal groupings. Every portal grouping (after the first) will have an increased
 chance of a PVP encounter and increased PVM loot chances. When a player selects a portal their soul will attempt to travel to the 
 PVM instance location specified by the portal name. During travel, a player's soul can be intercepted by "Soul Interceptors". 
-If your soul is intercepted by an Interceptor, there will be a chance your soul will protected via a "Soul Protector"
+If your soul is intercepted by an Interceptor, there will be a chance your soul will be protected via a "Soul Protector"
 (if enabled). This will allow another player of a similar level to fight in your place for you! This option can be turned off and is 
 <ins>not</ins> guaranteed to work.
 
@@ -29,7 +29,7 @@ If your soul is intercepted by an Interceptor, there will be a chance your soul 
 ### Upgrading
 TODO 
 ![](ideas/upgrading.png)
-
+![](ideas/upgrading_mockup.png)
 ### OTHER TOPICS 
 TODO
 
