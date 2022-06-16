@@ -27,8 +27,7 @@ If your soul is intercepted by an Interceptor, there will be a chance your soul 
 * Successfull PVP kill will reward the Protector with the loot of the Interceptor and the chance of obtaining "Blessed Souls"
 
 ### Upgrading
-TODO
-![](ideas/upgrading_mockup.png)
+![](ideas/upgrade_mock.png)
 ### OTHER TOPICS 
 TODO
 
