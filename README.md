@@ -6,6 +6,9 @@ as <ins>brutal</ins> as possible with key concepts such as risky item upgrades a
 **at all times** feel they are balancing <ins>risk</ins> vs <ins>reward</ins>. The game will always be 100% 
 free with the eventual possibility for donations to support server costs and efforts. 
 
+### Discussion about Mort
+Discussions about Mort can be found within the Go Getter Guild under the mort-rpg channel. https://discord.gg/Gn8jnFWHx9 
+
 ### Portal System
 Players have the choice of 4 instanced PVM portal groupings. Every portal grouping (after the first) will have an increased
 chance of a PVP encounter and increased PVM loot chances. When a player selects a portal their soul will attempt to travel to the 
@@ -41,6 +44,4 @@ TODO
 * FastAPI https://fastapi.tiangolo.com/
 
 ### Contributing
-Contributions are 100% volunteer. All assets are open source and can be found mostly from 
-https://opengameart.org/. I'm thankful for meaningful and thoughtful contributions regardless of skill or frequency. 
-I (BrettskiPy) will do my best to keep the project moving in the general creative direction I envision.
+See the contributing document

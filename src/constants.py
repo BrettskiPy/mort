@@ -45,8 +45,8 @@ DISCORD_RPC_ASSETS = {
     "buttons": [
         {
             "label": "Checkout Mort on GitHub",
-            "url": "https://github.com/BrettskiPy/mort"
+            "url": "https://github.com/BrettskiPy/mort",
         }
     ],
-    "start": time()
+    "start": time(),
 }

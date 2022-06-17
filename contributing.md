@@ -5,24 +5,24 @@ I (BrettskiPy) will do my best to keep the project moving in the general creativ
 
 ### How to contribute
 Before contributing, please check the list of needed contributions below and send me a message on Discord with your 
-ideas and/or talents.
+ideas and/or talents. If you would like to work directly on the specific needs of the project feel free to take 
+on one of the GitHub issue tickets.
 
-### Where to contribute
-The Mort repo found here https://github.com/BrettskiPy/mort
-
-### Discussion about Mort
-Discussions about Mort can be found within the Go Getter Guild under the mort-rpg channel. https://discord.gg/Gn8jnFWHx9 
-
-### Backend contributions needed
+#### Backend contributions needed
 * Database
 * FastAPI 
 * Testing (manual or automated)
 * DevOps CI/CD 
 
-### Frontend contributions needed
+#### Frontend contributions needed
 * Pixel Art
 * Animations 
 * Python Arcade code submissions via PR
 
-#### General frontend Mort + Arcade structure
+### Where to contribute
+The Mort repo found here https://github.com/BrettskiPy/mort
+
+### General frontend Arcade structure
+Code logic should be bundled within the standard Python Arcade methods. A good place to view these methods 
+can be found here
 ![](src/assets/contribution_images/arcade_code_structure.png)

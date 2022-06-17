@@ -1,5 +1,6 @@
 import arcade
 
+
 class UpgradeAnimation(arcade.Sprite):
     """The animation for upgrade success or failure"""
 
