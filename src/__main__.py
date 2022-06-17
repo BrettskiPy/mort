@@ -16,9 +16,6 @@ from arcade import color as arcade_color, key, resources
 class Item:
     name: str
     stats: dict
-    icon_image: str = ""  # Sorry for this too
-    def kill(self):  # Is this gonna change anything? I don't really know 😶
-        pass
 
 
 class HomeView(arcade.View):
@@ -41,6 +38,7 @@ class HomeView(arcade.View):
             center_y=GAME_HEIGHT / 2 - 75,
         )
         self.upgrade_status = None
+        self.item_to_vault_enabled = False
 
         # Sprite lists
         self.player_list: arcade.SpriteList = arcade.SpriteList()
@@ -70,6 +68,7 @@ class HomeView(arcade.View):
         # Icons lists
         self.inventory_icon_list: arcade.SpriteList = arcade.SpriteList()
         self.inventory_icon_slot_list: arcade.SpriteList = arcade.SpriteList()
+        self.vault_icon_list: arcade.SpriteList = arcade.SpriteList()
 
         # Sprite variables
         self.player: Player = Player(":assets:base/demigod_male.png", PLAYER_SCALE)
@@ -145,6 +144,8 @@ class HomeView(arcade.View):
         if self.show_vault_window:
             self.vault_window.draw(pixelated=True)
             # self.vault_window.display_positions()  # debugging visual
+            self.vault_icon_list.draw(pixelated=True)
+
         for button in self.right_side_button_list:
             if isinstance(
                 button, MenuButton
@@ -182,9 +183,13 @@ class HomeView(arcade.View):
             self.cursor_holding_icon_check()
 
         elif button == arcade.MOUSE_BUTTON_RIGHT:
-            self.inv_icon_to_equip_check(x, y)
-            self.slot_icon_to_inv_check()
-            self.calculate_total_item_stats()
+            if self.item_to_vault_enabled:
+                self.inv_to_vault_check()
+            else:
+                self.inv_icon_to_equip_check(x, y)
+                self.slot_icon_to_inv_check()
+                self.calculate_total_item_stats()
+
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
@@ -199,7 +204,13 @@ class HomeView(arcade.View):
             pass
 
     def on_key_press(self, key_pressed, modifiers):
-        self.window_key_router(key_pressed, modifiers)
+        self.window_key_router(key_pressed)
+
+        if key_pressed == key.LCTRL or modifiers == key.MOD_CTRL:
+            self.item_popup_background = True
+
+        if key_pressed == key.LALT or modifiers == key.MOD_ALT:
+            self.item_to_vault_enabled = True
 
         # fixme test functionality below
         if key_pressed == key.UP:
@@ -395,6 +406,23 @@ class HomeView(arcade.View):
                 )
                 self.set_cursor_position(x, y)
 
+    def inv_to_vault_check(self):
+        collision_icon = arcade.check_for_collision_with_list(
+            self.cursor_hand,
+            self.inventory_icon_list,
+        )
+        if collision_icon:
+            for icon in collision_icon:
+                icon: InventoryIcon
+                new_inv_icon = VaultIcon(
+                    icon.filename, icon.item_referenced, self.vault_icon_list
+                )
+                self.vault_icon_list.append(new_inv_icon)
+                icon.item_referenced.kill()
+                icon.kill()
+                self.refresh_all_windows()
+                self.sound.play(volume=self.sound_volume)
+
     def timed_lighting_with_background(self):
         """Draws a background that slowly changes from light/dark"""
         if self.daylight:
@@ -506,6 +534,10 @@ class HomeView(arcade.View):
         self.right_side_button_list[1].state = True  # type: ignore
         self.background = arcade.load_texture(":assets:background/4.png")
 
+    def refresh_vault_window(self):
+        """Refreshes and repositions the current location of the icons within the inventory window"""
+        self.vault_window.position_icons(self.vault_icon_list)
+
     def position_vault_window(self):
         """Positions the vault window"""
         self.vault_window.center_x = GAME_WIDTH - self.vault_window.width / 2 - 65
@@ -535,8 +567,9 @@ class HomeView(arcade.View):
         """Refreshes all active windows with their respective icon positions"""
         if self.show_inventory_window:
             self.refresh_inventory_window()
+        self.refresh_vault_window()
 
-    def window_key_router(self, key_pressed, modifiers):
+    def window_key_router(self, key_pressed):
         """A router for all keys that display windows (such as inventory or vault)"""
         # TODO refactor this into a clean function
         if key_pressed == key.I:
@@ -574,9 +607,6 @@ class HomeView(arcade.View):
 
         if key_pressed == key.F:
             print("fight")
-
-        if key_pressed == key.LCTRL or modifiers == key.MOD_CTRL:
-            self.item_popup_background = True
 
     def icon_drop_swap(self, cursor_x, cursor_y):
         """Drops an icon at the current released position (typically within an inventory or vault). If an item exists in

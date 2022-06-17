@@ -55,6 +55,12 @@ class Vault(arcade.Sprite):
         self.open = open
         self.mapped_carry_positions: dict = self.map_carry_positions()
 
+    def position_icons(self, icon_list):
+        if icon_list:
+            for icon in icon_list:
+                icon.center_x = self.mapped_carry_positions[icon.vault_pos]["x"]
+                icon.center_y = self.mapped_carry_positions[icon.vault_pos]["y"]
+
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
             arcade.draw_rectangle_outline(

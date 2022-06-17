@@ -47,22 +47,28 @@ class InventorySlotIcon(arcade.Sprite):
 
 
 class VaultIcon(arcade.Sprite):
-    def __init__(self, filename, item_referenced, vault_icon_list, scale=ICON_SCALE):
+    def __init__(
+        self,
+        filename,
+        item_referenced,
+        vault_icon_list,
+        scale=ICON_SCALE,
+    ):
         super().__init__(filename, scale)
         self.filename = filename
         self.item_referenced = item_referenced
         self.vault_pos = 0
         self.vault_icon_list = vault_icon_list
-        self.set_inv_position()
+        self.set_vault_position()
 
-    def set_inv_position(self):
-        sorted_inv_list = [icon.vault_pos for icon in self.vault_icon_list]
-        sorted_inv_list.sort()
-        if len(sorted_inv_list) >= 1:
-            if self.missing_elements(sorted_inv_list):
-                self.vault_pos = min(self.missing_elements(sorted_inv_list))
+    def set_vault_position(self):
+        sorted_vault_list = [icon.vault_pos for icon in self.vault_icon_list]
+        sorted_vault_list.sort()
+        if len(sorted_vault_list) >= 1:
+            if self.missing_elements(sorted_vault_list):
+                self.vault_pos = min(self.missing_elements(sorted_vault_list))
             else:
-                self.vault_pos = max(sorted_inv_list) + 1
+                self.vault_pos = max(sorted_vault_list) + 1
 
     def missing_elements(self, sorted_inv_list):
         start, end = sorted_inv_list[0], sorted_inv_list[-1]
