@@ -1,15 +1,27 @@
 # Mort
 
-### Description
+## Description
 Mort is an open source game (eventually an MMORPG) that uses the Python Arcade engine and FastAPI. This game is designed to be 
 as <ins>brutal</ins> as possible with key concepts such as risky item upgrades and full loot PVP. The player should 
 **at all times** feel they are balancing <ins>risk</ins> vs <ins>reward</ins>. The game will always be 100% 
 free with the eventual possibility for donations to support server costs and efforts. 
 
-### Discussion about Mort
-Discussions about Mort can be found within the Go Getter Guild under the mort-rpg channel. https://discord.gg/Gn8jnFWHx9 
+## Discussion about Mort
+Discussions about Mort can be found within the Go Getter Guild under the mort-rpg channel. https://discord.gg/Gn8jnFWHx9
 
-### Portal System
+## Trading
+Under construction
+
+## Chat
+Under construction
+
+### Chat rules
+Under construction
+
+## Combat
+Under construction... will be instanced and turn based (like Pokémon). 
+
+## Portal System
 Players have the choice of 4 instanced PVM portal groupings. Every portal grouping (after the first) will have an increased
 chance of a PVP encounter and increased PVM loot chances. When a player selects a portal their soul will attempt to travel to the 
 PVM instance location specified by the portal name. During travel, a player's soul can be intercepted by "Soul Interceptors". 
@@ -34,8 +46,6 @@ If your soul is intercepted by an Interceptor, there will be a chance your soul 
 
 ### Upgrading
 ![](ideas/upgrade_mock.png)
-### OTHER TOPICS 
-TODO
 
 ### Technical Components 
 #### Front end
