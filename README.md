@@ -21,7 +21,7 @@ Under construction
 ## Combat
 Under construction... will be instanced and turn based (like Pokémon). 
 
-## Portal System
+### Portal System
 Players have the choice of 4 instanced PVM portal groupings. Every portal grouping (after the first) will have an increased
 chance of a PVP encounter and increased PVM loot chances. When a player selects a portal their soul will attempt to travel to the 
 PVM instance location specified by the portal name. During travel, a player's soul can be intercepted by "Soul Interceptors". 
