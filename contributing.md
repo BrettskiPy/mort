@@ -25,3 +25,4 @@ Discussions about Mort can be found within the Go Getter Guild under the mort-rp
 * Python Arcade code submissions via PR
 
 #### General frontend Mort + Arcade structure
+![](src/assets/contribution_images/arcade_code_structure.png)
