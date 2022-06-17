@@ -1,7 +1,8 @@
 import arcade
 
+
 class UpgradeAnimation(arcade.Sprite):
-    """ This class creates an explosion animation """
+    """The animation for upgrade success or failure"""
 
     def __init__(self, texture_list):
         super().__init__()
@@ -9,6 +10,8 @@ class UpgradeAnimation(arcade.Sprite):
         # Start at the first frame
         self.current_texture = 0
         self.textures = texture_list
+        self.center_x = 370
+        self.center_y = 300
 
     def update(self):
 
