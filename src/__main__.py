@@ -16,6 +16,9 @@ from arcade import color as arcade_color, key, resources
 class Item:
     name: str
     stats: dict
+    icon_image: str = ""  # Sorry for this too
+    def kill(self):  # Is this gonna change anything? I don't really know 😶
+        pass
 
 
 class HomeView(arcade.View):
@@ -275,7 +278,8 @@ class HomeView(arcade.View):
     def calculate_total_item_stats(self):
         """Calculates the current item stats for both weapons and armor to be used for display in the inventory"""
         self.total_item_stats = {}
-        for item in self.equipped_list:
+        for item in self.equipped_list:  # type: ignore
+            item: Item
             for stat, value in item.stats.items():
                 if self.total_item_stats.get(stat):
                     self.total_item_stats[stat] += value
@@ -349,7 +353,8 @@ class HomeView(arcade.View):
         """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being held,
         it will transfer the item's data into the cursor_hand object"""
         collision = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_list
+            self.cursor_hand,
+            self.inventory_icon_list,
         )
         if collision:
             self.cursor_hand.holding_icon = True
@@ -360,10 +365,12 @@ class HomeView(arcade.View):
         """Checks for a cursor collision with an equipped slot icon. It will then create a new icon in the inventory with
         the respective item data"""
         collision_slot_icon = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_slot_list
+            self.cursor_hand,
+            self.inventory_icon_slot_list,
         )
         if collision_slot_icon:
-            for icon in collision_slot_icon:
+            for icon in collision_slot_icon:  # type: ignore
+                icon: InventorySlotIcon
                 new_inv_icon = InventoryIcon(
                     icon.filename, icon.item_referenced, self.inventory_icon_list
                 )
@@ -377,7 +384,8 @@ class HomeView(arcade.View):
         """Checks for a cursor collision with an inventory item. It will then create a new icon in the correct item type
         equipped slot. This new icon will also contain the item's data"""
         collision_icon = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_list
+            self.cursor_hand,
+            self.inventory_icon_list,
         )
         if collision_icon:
             for icon in collision_icon:
@@ -430,6 +438,7 @@ class HomeView(arcade.View):
         for button in arcade.check_for_collision_with_list(
             self.cursor_hand, self.right_side_button_list
         ):
+            button: MenuButton
             if button.state:
                 self.deactivate_all_buttons_windows()
             else:
@@ -494,7 +503,7 @@ class HomeView(arcade.View):
         """Displays and positions the vault window"""
         self.show_vault_window = True
         self.position_vault_window()
-        self.right_side_button_list[1].state = True
+        self.right_side_button_list[1].state = True  # type: ignore
         self.background = arcade.load_texture(":assets:background/4.png")
 
     def position_vault_window(self):
@@ -514,7 +523,7 @@ class HomeView(arcade.View):
     def deactivate_all_buttons(self):
         """Deactivates all buttons"""
         for other_buttons in self.right_side_button_list:
-            other_buttons.state = False
+            other_buttons.state = False  # type: ignore
 
     def deactivate_all_buttons_windows(self):
         """Deactivates all buttons and all windows"""
@@ -533,7 +542,7 @@ class HomeView(arcade.View):
         if key_pressed == key.I:
             if self.show_inventory_window:
                 self.deactivate_all_buttons_windows()
-            elif [button.state for button in self.right_side_button_list]:
+            elif [button.state for button in self.right_side_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
                 self.inventory_display()
                 self.inventory_window.position_icons(self.inventory_icon_list)
@@ -541,7 +550,7 @@ class HomeView(arcade.View):
         if key_pressed == key.V:
             if self.show_vault_window:
                 self.deactivate_all_buttons_windows()
-            elif [button.state for button in self.right_side_button_list]:
+            elif [button.state for button in self.right_side_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
                 self.vault_display()
 
@@ -656,9 +665,10 @@ class HomeView(arcade.View):
 
         # FIXME simplify this complex function
         # gets the old equipped item
+        old_equipped_item: Item = None  # type: ignore
         for item in self.equipped_list:
             if isinstance(item, item_type):
-                old_equipped_item = item
+                old_equipped_item = item  # type: ignore
                 break
 
         new_equipped_item = icon.item_referenced
@@ -671,7 +681,8 @@ class HomeView(arcade.View):
             inv_window=self.inventory_window,
         )
 
-        for old_slot_icon in self.inventory_icon_slot_list:
+        for old_slot_icon in self.inventory_icon_slot_list:  # type: ignore
+            old_slot_icon: InventorySlotIcon
             if isinstance(old_slot_icon.item_referenced, item_type):
                 old_slot_icon.kill()
 
