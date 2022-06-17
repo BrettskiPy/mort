@@ -106,7 +106,7 @@ class HomeView(arcade.View):
 
     def setup(self):
         self.player_list.append(self.player)
-        self.generate_test_items()  # item test creation
+        self.generate_test_server_items()
         self.generate_home_right_panel()
         self.music_player.play(
             loop=True,
@@ -222,7 +222,6 @@ class HomeView(arcade.View):
                 self.inventory_window.position_icons(self.inventory_icon_list)
 
     def on_key_release(self, key_pressed, modifiers):
-        """Called when the user releases a key."""
         if key_pressed == key.LCTRL:
             self.item_popup_background = False
 
@@ -230,10 +229,13 @@ class HomeView(arcade.View):
             self.upgrade_status = None
 
     def set_cursor_position(self, x, y):
+        """Sets the player's cursor to the current x and y positions"""
         self.cursor_hand.center_x = x
         self.cursor_hand.center_y = y
 
     def item_background_popup_show(self):
+        """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
+        stats to be drawn on"""
         collision = arcade.check_for_collision_with_list(
             self.cursor_hand, self.inventory_icon_list
         )
@@ -271,6 +273,7 @@ class HomeView(arcade.View):
                 y_offset -= 25
 
     def calculate_total_item_stats(self):
+        """Calculates the current item stats for both weapons and armor to be used for display in the inventory"""
         self.total_item_stats = {}
         for item in self.equipped_list:
             for stat, value in item.stats.items():
@@ -280,6 +283,8 @@ class HomeView(arcade.View):
                     self.total_item_stats[stat] = value
 
     def display_total_item_stats(self):
+        """Displays the total item stats. This will differentiate between weapons and armor. Also it will display
+        the various stats with their respective colors."""
         armor_starting_height = GAME_HEIGHT - 130
         weapon_starting_height = GAME_HEIGHT - 320
 
@@ -341,6 +346,8 @@ class HomeView(arcade.View):
                     weapon_text_y -= 35
 
     def cursor_holding_icon_check(self):
+        """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being held,
+        it will transfer the item's data into the cursor_hand object"""
         collision = arcade.check_for_collision_with_list(
             self.cursor_hand, self.inventory_icon_list
         )
@@ -350,6 +357,8 @@ class HomeView(arcade.View):
                 self.cursor_hand.icon_held = icon
 
     def slot_icon_to_inv_check(self):
+        """Checks for a cursor collision with an equipped slot icon. It will then create a new icon in the inventory with
+        the respective item data"""
         collision_slot_icon = arcade.check_for_collision_with_list(
             self.cursor_hand, self.inventory_icon_slot_list
         )
@@ -365,6 +374,8 @@ class HomeView(arcade.View):
                 self.sound.play(volume=self.sound_volume)
 
     def inv_icon_to_equip_check(self, x, y):
+        """Checks for a cursor collision with an inventory item. It will then create a new icon in the correct item type
+        equipped slot. This new icon will also contain the item's data"""
         collision_icon = arcade.check_for_collision_with_list(
             self.cursor_hand, self.inventory_icon_list
         )
@@ -377,6 +388,7 @@ class HomeView(arcade.View):
                 self.set_cursor_position(x, y)
 
     def timed_lighting_with_background(self):
+        """Draws a background that slowly changes from light/dark"""
         if self.daylight:
             self.time_of_day -= DAYLIGHT_SPEED
             if self.time_of_day < 1:
@@ -395,6 +407,7 @@ class HomeView(arcade.View):
         )
 
     def generate_home_right_panel(self):
+        """Generates the buttons and button panel on the right of the home screen"""
         self.right_side_bar = arcade.Sprite(":assets:gui/right_side_bar.png", 1.5)
         self.position_home_right_panel()
         self.static_gui_list.append(self.right_side_bar)
@@ -413,6 +426,7 @@ class HomeView(arcade.View):
             height -= 54
 
     def right_panel_onclick_actions(self):
+        """Activates actions based on a user clicking the respective button"""
         for button in arcade.check_for_collision_with_list(
             self.cursor_hand, self.right_side_button_list
         ):
@@ -447,61 +461,74 @@ class HomeView(arcade.View):
         self.right_side_bar.center_y = GAME_HEIGHT / 2
 
     def inventory_display(self):
+        """Displays and positions the inventory window"""
         self.show_inventory_window = True
-        self.position_inventory()
+        self.position_inventory_window()
         self.right_side_button_list[0].state = True
         self.background = arcade.load_texture(":assets:background/4.png")
 
     def inventory_display_from_upgrade(self):
+        """Displays and positions the inventory window within the upgrade area"""
         self.inventory_window = Inventory(
             ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
         )
-        self.position_inventory()
+        self.position_inventory_window()
         self.right_side_button_list[3].state = True
 
     def refresh_inventory_window(self):
+        """Refreshes and repositions the current location of the icons within the inventory window"""
         self.inventory_window.position_icons(self.inventory_icon_list)
 
     def inventory_deactivate(self):
+        """Deactivates the inventory window display"""
         self.show_inventory_window = False
 
-    def position_inventory(self):
+    def position_inventory_window(self):
+        """Positions the inventory window"""
         self.inventory_window.center_x = (
             GAME_WIDTH - self.inventory_window.width / 2 - 65
         )
         self.inventory_window.center_y = GAME_HEIGHT / 2
 
     def vault_display(self):
+        """Displays and positions the vault window"""
         self.show_vault_window = True
         self.position_vault_window()
         self.right_side_button_list[1].state = True
         self.background = arcade.load_texture(":assets:background/4.png")
 
     def position_vault_window(self):
+        """Positions the vault window"""
         self.vault_window.center_x = GAME_WIDTH - self.vault_window.width / 2 - 65
         self.vault_window.center_y = GAME_HEIGHT / 2
 
     def vault_window_deactivate(self):
+        """Deactivates the vault window display"""
         self.show_vault_window = False  # type: ignore
 
     def deactivate_all_windows(self):
+        """Deactivates all window displays"""
         self.inventory_deactivate()
         self.vault_window_deactivate()
 
     def deactivate_all_buttons(self):
+        """Deactivates all buttons"""
         for other_buttons in self.right_side_button_list:
             other_buttons.state = False
 
     def deactivate_all_buttons_windows(self):
+        """Deactivates all buttons and all windows"""
         self.deactivate_all_windows()
         self.deactivate_all_buttons()
         self.upgrading = False
 
     def refresh_all_windows(self):
+        """Refreshes all active windows with their respective icon positions"""
         if self.show_inventory_window:
             self.refresh_inventory_window()
 
     def window_key_router(self, key_pressed, modifiers):
+        """A router for all keys that display windows (such as inventory or vault)"""
         # TODO refactor this into a clean function
         if key_pressed == key.I:
             if self.show_inventory_window:
@@ -543,6 +570,8 @@ class HomeView(arcade.View):
             self.item_popup_background = True
 
     def icon_drop_swap(self, cursor_x, cursor_y):
+        """Drops an icon at the current released position (typically within an inventory or vault). If an item exists in
+        the dropped position it will swap positions with the icon it is dropped upon"""
         if self.show_inventory_window:
             collision = arcade.check_for_collision_with_list(
                 self.cursor_hand, self.inventory_icon_list
@@ -594,6 +623,9 @@ class HomeView(arcade.View):
         self.set_cursor_position(cursor_x, cursor_y)
 
     def equip_item_to_player(self, icon):
+        """Checks the type of item about to be equipped and places the new icon in the correct inventory slot position
+        and places the actual item on the player. If the item type is already equipped it will swap.
+        """
         item_type = type(icon.item_referenced)
         if isinstance(icon.item_referenced, item_type):
             if any(isinstance(equipped, item_type) for equipped in self.equipped_list):
@@ -606,6 +638,8 @@ class HomeView(arcade.View):
         icon.kill()
 
     def equip_empty_slot(self, icon):
+        """If the item equip inventory slot is empty, the new icon will appear in the correct slot location and a new visual
+        item will appear on the player."""
         self.equipped_list.append(icon.item_referenced)
         slot_icon = InventorySlotIcon(
             icon.item_referenced.icon_image,
@@ -654,6 +688,7 @@ class HomeView(arcade.View):
         old_equipped_item.kill()
 
     def create_item_and_icon(self, test_item_data):
+        """Creates a new item and icon from incoming item data"""
         name = test_item_data.name
         image = item_map[name]["image"]
         icon = item_map[name]["icon"]
@@ -669,6 +704,7 @@ class HomeView(arcade.View):
         self.inventory_icon_list.append(icon)
 
     def animate_item_upgrade(self):
+        """Animation for an item's failure or success"""
         upgrade_animation: UpgradeAnimation = UpgradeAnimation(
             self.upgrade_success_texture_list
         )
@@ -678,8 +714,6 @@ class HomeView(arcade.View):
                 upgrade_animation = UpgradeAnimation(self.upgrade_success_texture_list)
             elif self.upgrade_status == "failure":
                 upgrade_animation = UpgradeAnimation(self.upgrade_fail_texture_list)
-            upgrade_animation.center_x = 370
-            upgrade_animation.center_y = 300
             upgrade_animation.update()
             self.upgrade_animation_list.append(upgrade_animation)
 
@@ -732,9 +766,6 @@ class HomeView(arcade.View):
         ]
         for item in test_server_items:
             self.create_item_and_icon(item)
-
-    def generate_test_items(self):
-        pass
 
 
 def main():
