@@ -6,7 +6,7 @@ charset-normalizer==2.0.12
 idna==3.3
 pillow==9.1.1
 pycparser==2.21
-pyglet==2.0.dev16
+pyglet==2.0.dev18
 pymunk==6.2.1
 pytiled-parser==2.0.1
 requests==2.27.1
