@@ -18,7 +18,9 @@ class HandCursor(arcade.Sprite):
                 self.center_y - self.icon_held.height / 2 + 10,
                 self.icon_held.width,
                 self.icon_held.height,
-                self.icon_held.texture if self.icon_held.texture is not None else Texture("holding_icon"),  # Gotta find a better way to do this
+                self.icon_held.texture
+                if self.icon_held.texture is not None
+                else Texture("holding_icon"),  # Gotta find a better way to do this
             )
 
 

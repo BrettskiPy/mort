@@ -192,7 +192,6 @@ class HomeView(arcade.View):
                 self.slot_icon_to_inv_check()
                 self.calculate_total_item_stats()
 
-
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
             if self.cursor_hand.icon_held:
@@ -256,10 +255,17 @@ class HomeView(arcade.View):
         """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
         stats to be drawn on"""
         collision = arcade.check_for_collision_with_lists(
-            self.cursor_hand, (self.inventory_icon_list, self.vault_icon_list, self.inventory_icon_slot_list)
+            self.cursor_hand,
+            (
+                self.inventory_icon_list,
+                self.vault_icon_list,
+                self.inventory_icon_slot_list,
+            ),
         )
         for icon in collision:
-            if not isinstance(icon, (InventoryIcon, VaultIcon, InventorySlotIcon)):  # linters 😔
+            if not isinstance(
+                icon, (InventoryIcon, VaultIcon, InventorySlotIcon)
+            ):  # linters 😔
                 return
             arcade.draw_texture_rectangle(
                 icon.center_x,
