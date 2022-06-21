@@ -139,8 +139,6 @@ class HomeView(arcade.View):
             self.inventory_icon_list.draw(pixelated=True)
             self.inventory_icon_slot_list.draw(pixelated=True)
             self.display_total_item_stats()
-            if self.item_popup_background:
-                self.item_background_popup_show()
 
         if self.show_vault_window:
             self.vault_window.draw(pixelated=True)
@@ -156,6 +154,9 @@ class HomeView(arcade.View):
 
         if self.cursor_hand.holding_icon:
             self.cursor_hand.grab_icon()
+
+        if self.item_popup_background:
+            self.item_background_popup_show()
 
         self.cursor_hand.draw()
 
@@ -230,7 +231,7 @@ class HomeView(arcade.View):
                     file_name=":assets:sounds/upgrade/evil_laugh.mp3", streaming=True
                 ).play(speed=0.7)
 
-        # FIXME key x is test
+        # FIXME key x is a test to populate additional inventory items
         if key_pressed == key.X:
             self.generate_test_server_items()
             if self.show_inventory_window:
@@ -254,11 +255,11 @@ class HomeView(arcade.View):
     def item_background_popup_show(self):
         """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
         stats to be drawn on"""
-        collision = arcade.check_for_collision_with_list(
-            self.cursor_hand, self.inventory_icon_list
+        collision = arcade.check_for_collision_with_lists(
+            self.cursor_hand, (self.inventory_icon_list, self.vault_icon_list, self.inventory_icon_slot_list)
         )
         for icon in collision:
-            if not isinstance(icon, InventoryIcon):  # linters 😔
+            if not isinstance(icon, (InventoryIcon, VaultIcon, InventorySlotIcon)):  # linters 😔
                 return
             arcade.draw_texture_rectangle(
                 icon.center_x,
