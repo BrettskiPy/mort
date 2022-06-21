@@ -1,6 +1,7 @@
 import random
 from dataclasses import dataclass
 
+from armor import *
 from player import Player
 from gui import *
 from icon import *
@@ -679,10 +680,20 @@ class HomeView(arcade.View):
         self.refresh_all_windows()
         icon.kill()
 
+    def equip_correct_order(self, item_equipped):
+        """Ensures specific draw order. EX: The legs need to be drawn before the body to appear correct"""
+        if isinstance(item_equipped, Legs):
+            self.equipped_list.insert(0, item_equipped)
+        else:
+            self.equipped_list.append(item_equipped)
+
     def equip_empty_slot(self, icon):
         """If the item equip inventory slot is empty, the new icon will appear in the correct slot location and a new visual
         item will appear on the player."""
-        self.equipped_list.append(icon.item_referenced)
+
+        # To properly display the legs they need to be in front of the body armor in the list order
+        self.equip_correct_order(icon.item_referenced)
+
         slot_icon = InventorySlotIcon(
             icon.item_referenced.icon_image,
             ICON_SCALE,
@@ -704,8 +715,7 @@ class HomeView(arcade.View):
                 old_equipped_item = item  # type: ignore
                 break
 
-        new_equipped_item = icon.item_referenced
-        self.equipped_list.append(new_equipped_item)
+        self.equip_correct_order(icon.item_referenced)
 
         new_slot_icon = InventorySlotIcon(
             icon.item_referenced.icon_image,
