@@ -239,6 +239,9 @@ class HomeView(arcade.View):
         if key_pressed == key.LCTRL:
             self.item_popup_background = False
 
+        if key_pressed == key.LALT:
+            self.item_to_vault_enabled = False
+
         if key_pressed in (key.UP, key.DOWN):
             self.upgrade_status = None
 
