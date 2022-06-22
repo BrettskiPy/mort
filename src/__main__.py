@@ -81,12 +81,11 @@ class HomeView(arcade.View):
             ":assets:gui/inventory.png",
             INGAME_WINDOW_SCALE,
         )
-        self.show_inventory_window: bool = False
         self.vault_window: Vault = Vault(
             ":assets:gui/vault.png",
             INGAME_WINDOW_SCALE,
         )
-        self.show_vault_window: bool = False
+
         self.portrait_frame: PortraitFrame = PortraitFrame(
             ":assets:gui/portrait_frame/portrait_frame.png",
             PORTRAIT_PANEL_SCALE,
@@ -133,14 +132,14 @@ class HomeView(arcade.View):
         if self.upgrading:
             self.upgrade_pentagram.draw(pixelated=True)
 
-        if self.show_inventory_window:
+        if self.inventory_window.open:
             self.inventory_window.draw(pixelated=True)
             # self.inventory_window.display_positions()  # debugging visual
             self.inventory_icon_list.draw(pixelated=True)
             self.inventory_icon_slot_list.draw(pixelated=True)
             self.display_total_item_stats()
 
-        if self.show_vault_window:
+        if self.vault_window.open:
             self.vault_window.draw(pixelated=True)
             # self.vault_window.display_positions()  # debugging visual
             self.vault_icon_list.draw(pixelated=True)
@@ -195,6 +194,7 @@ class HomeView(arcade.View):
         if button == arcade.MOUSE_BUTTON_LEFT:
             if self.cursor_hand.icon_held:
                 self.icon_drop_swap(x, y)
+                self.cursor_hand.holding_icon = False
             self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_point.png")
 
         if button == arcade.MOUSE_BUTTON_RIGHT:
@@ -229,7 +229,7 @@ class HomeView(arcade.View):
         # FIXME key x is a test to populate additional inventory items
         if key_pressed == key.X:
             self.generate_test_server_items()
-            if self.show_inventory_window:
+            if self.inventory_window.open:
                 self.inventory_window.position_icons(self.inventory_icon_list)
 
     def on_key_release(self, key_pressed, modifiers):
@@ -241,11 +241,6 @@ class HomeView(arcade.View):
 
         if key_pressed in (key.UP, key.DOWN):
             self.upgrade_status = None
-
-    def set_cursor_position(self, x, y):
-        """Sets the player's cursor to the current x and y positions"""
-        self.cursor_hand.center_x = x
-        self.cursor_hand.center_y = y
 
     def item_background_popup_show(self):
         """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
@@ -477,7 +472,9 @@ class HomeView(arcade.View):
                 self.deactivate_all_buttons_windows()
                 button.state = True
                 if button.description == "inventory":
-                    self.inventory_display()
+                    self.inventory_window.display()
+                    self.right_side_button_list[0].state = True
+                    self.background = arcade.load_texture(":assets:background/4.png")
                     self.inventory_window.position_icons(self.inventory_icon_list)
                 elif button.description == "vault":
                     self.vault_display()
@@ -491,7 +488,7 @@ class HomeView(arcade.View):
                     self.inventory_display_from_upgrade()
                     self.inventory_window.position_icons(self.inventory_icon_list)
                     self.upgrading = True
-                    self.show_inventory_window = True
+                    self.inventory_window.open = True
                 elif button.description == "portals":
                     print("portaling")
                 elif button.description == "fight":
@@ -501,19 +498,12 @@ class HomeView(arcade.View):
         self.right_side_bar.center_x = GAME_WIDTH - 30
         self.right_side_bar.center_y = GAME_HEIGHT / 2
 
-    def inventory_display(self):
-        """Displays and positions the inventory window"""
-        self.show_inventory_window = True
-        self.position_inventory_window()
-        self.right_side_button_list[0].state = True
-        self.background = arcade.load_texture(":assets:background/4.png")
-
     def inventory_display_from_upgrade(self):
         """Displays and positions the inventory window within the upgrade area"""
         self.inventory_window = Inventory(
             ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
         )
-        self.position_inventory_window()
+        self.inventory_window.display()
         self.right_side_button_list[3].state = True
 
     def refresh_inventory_window(self):
@@ -522,18 +512,11 @@ class HomeView(arcade.View):
 
     def inventory_deactivate(self):
         """Deactivates the inventory window display"""
-        self.show_inventory_window = False
-
-    def position_inventory_window(self):
-        """Positions the inventory window"""
-        self.inventory_window.center_x = (
-            GAME_WIDTH - self.inventory_window.width / 2 - 65
-        )
-        self.inventory_window.center_y = GAME_HEIGHT / 2
+        self.inventory_window.open = False
 
     def vault_display(self):
         """Displays and positions the vault window"""
-        self.show_vault_window = True
+        self.vault_window.open = True
         self.position_vault_window()
         self.right_side_button_list[1].state = True  # type: ignore
         self.background = arcade.load_texture(":assets:background/4.png")
@@ -547,14 +530,10 @@ class HomeView(arcade.View):
         self.vault_window.center_x = GAME_WIDTH - self.vault_window.width / 2 - 65
         self.vault_window.center_y = GAME_HEIGHT / 2
 
-    def vault_window_deactivate(self):
-        """Deactivates the vault window display"""
-        self.show_vault_window = False  # type: ignore
-
     def deactivate_all_windows(self):
         """Deactivates all window displays"""
-        self.inventory_deactivate()
-        self.vault_window_deactivate()
+        self.inventory_window.deactivate()
+        self.vault_window.deactivate()
 
     def deactivate_all_buttons(self):
         """Deactivates all buttons"""
@@ -569,23 +548,22 @@ class HomeView(arcade.View):
 
     def refresh_all_windows(self):
         """Refreshes all active windows with their respective icon positions"""
-        if self.show_inventory_window:
-            self.refresh_inventory_window()
+        self.inventory_window.refresh_inventory_window(self.inventory_icon_list)
         self.refresh_vault_window()
 
     def window_key_router(self, key_pressed):
         """A router for all keys that display windows (such as inventory or vault)"""
         # TODO refactor this into a clean function
         if key_pressed == key.I:
-            if self.show_inventory_window:
+            if self.inventory_window.open:
                 self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
-                self.inventory_display()
+                self.inventory_window.display()
                 self.inventory_window.position_icons(self.inventory_icon_list)
 
         if key_pressed == key.V:
-            if self.show_vault_window:
+            if self.vault_window.open:
                 self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
@@ -604,7 +582,7 @@ class HomeView(arcade.View):
                 self.inventory_display_from_upgrade()
                 self.inventory_window.position_icons(self.inventory_icon_list)
                 self.upgrading = True
-                self.show_inventory_window = True
+                self.inventory_window.open = True
 
         if key_pressed == key.P:
             print("portals")
@@ -615,7 +593,7 @@ class HomeView(arcade.View):
     def icon_drop_swap(self, cursor_x, cursor_y):
         """Drops an icon at the current released position (typically within an inventory or vault). If an item exists in
         the dropped position it will swap positions with the icon it is dropped upon"""
-        if self.show_inventory_window:
+        if self.inventory_window.open:
             collision = arcade.check_for_collision_with_list(
                 self.cursor_hand, self.inventory_icon_list
             )

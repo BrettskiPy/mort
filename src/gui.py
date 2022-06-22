@@ -3,7 +3,6 @@ from constants import *
 import arcade
 from arcade import Sprite, Texture, color
 
-
 class HandCursor(arcade.Sprite):
     def __init__(self, filename, scale=CURSOR_SCALE):
         super().__init__(filename, scale)
@@ -71,6 +70,10 @@ class Vault(arcade.Sprite):
             arcade.draw_rectangle_outline(
                 v["x"], v["y"], v["width"], v["height"], color=color.LAVA
             )
+
+    def deactivate(self):
+        """Deactivates the vault window display"""
+        self.open = False
 
     def map_carry_positions(self):
         # FIXME This function is trash but works.....
@@ -219,6 +222,27 @@ class Inventory(arcade.Sprite):
             arcade.draw_rectangle_outline(
                 v["x"], v["y"], v["width"], v["height"], color=color.RUBY
             )
+
+    def display(self):
+        """Displays and positions the inventory window"""
+        self.open = True
+        self.position_inventory_window()
+
+    def position_inventory_window(self):
+        """Positions the inventory window"""
+        self.center_x = (
+                GAME_WIDTH - self.width / 2 - 65
+        )
+        self.center_y = GAME_HEIGHT / 2
+
+    def deactivate(self):
+        """Deactivates the inventory window display"""
+        self.open = False
+
+    def refresh_inventory_window(self, inventory_icon_list):
+        """Refreshes and repositions the current location of the icons within the inventory window"""
+        if self.open:
+            self.position_icons(inventory_icon_list)
 
     def map_slot_positions(self):
         width = 62
