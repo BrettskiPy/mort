@@ -23,6 +23,9 @@ class HandCursor(arcade.Sprite):
                 else Texture("holding_icon"),  # Gotta find a better way to do this
             )
 
+    def set_cursor_position(self, x, y):
+        self.center_x = x
+        self.center_y = y
 
 class MenuButton(arcade.Sprite):
     def __init__(self, description, filename, scale):

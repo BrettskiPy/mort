@@ -175,12 +175,11 @@ class HomeView(arcade.View):
         self.animate_item_upgrade()
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
-        self.set_cursor_position(x, y)
+        self.cursor_hand.set_cursor_position(x, y)
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
-            self.cursor_hand = HandCursor(":assets:cursor/glove_grab.png", CURSOR_SCALE)
-            self.set_cursor_position(x, y)
+            self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_grab.png")
             self.right_panel_onclick_actions()
             self.cursor_holding_icon_check()
 
@@ -188,7 +187,7 @@ class HomeView(arcade.View):
             if self.item_to_vault_enabled:
                 self.inv_to_vault_check()
             else:
-                self.inv_icon_to_equip_check(x, y)
+                self.inv_icon_to_equip_check()
                 self.slot_icon_to_inv_check()
                 self.calculate_total_item_stats()
 
@@ -196,10 +195,7 @@ class HomeView(arcade.View):
         if button == arcade.MOUSE_BUTTON_LEFT:
             if self.cursor_hand.icon_held:
                 self.icon_drop_swap(x, y)
-            self.cursor_hand = HandCursor(
-                ":assets:cursor/glove_point.png", CURSOR_SCALE
-            )
-            self.set_cursor_position(x, y)
+            self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_point.png")
 
         if button == arcade.MOUSE_BUTTON_RIGHT:
             pass
@@ -402,7 +398,7 @@ class HomeView(arcade.View):
                 self.refresh_all_windows()
                 self.sound.play(volume=self.sound_volume)
 
-    def inv_icon_to_equip_check(self, x, y):
+    def inv_icon_to_equip_check(self):
         """Checks for a cursor collision with an inventory item. It will then create a new icon in the correct item type
         equipped slot. This new icon will also contain the item's data"""
         collision_icon = arcade.check_for_collision_with_list(
@@ -412,10 +408,7 @@ class HomeView(arcade.View):
         if collision_icon:
             for icon in collision_icon:
                 self.equip_item_to_player(icon)
-                self.cursor_hand = HandCursor(
-                    ":assets:cursor/glove_point.png", CURSOR_SCALE
-                )
-                self.set_cursor_position(x, y)
+                self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_point.png")
 
     def inv_to_vault_check(self):
         collision_icon = arcade.check_for_collision_with_list(
@@ -669,8 +662,7 @@ class HomeView(arcade.View):
         self.sound = arcade.Sound(":assets:sounds/inventory/item_swap.mp3")
         self.sound.play(volume=self.sound_volume)
         self.refresh_all_windows()
-        self.cursor_hand = HandCursor(":assets:cursor/glove_point.png", CURSOR_SCALE)
-        self.set_cursor_position(cursor_x, cursor_y)
+        self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_point.png")
 
     def equip_item_to_player(self, icon):
         """Checks the type of item about to be equipped and places the new icon in the correct inventory slot position
