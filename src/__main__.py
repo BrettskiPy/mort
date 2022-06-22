@@ -178,7 +178,9 @@ class HomeView(arcade.View):
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
-            self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_grab.png")
+            self.cursor_hand.texture = arcade.load_texture(
+                ":assets:cursor/glove_grab.png"
+            )
             self.right_panel_onclick_actions()
             self.cursor_holding_icon_check()
 
@@ -195,7 +197,9 @@ class HomeView(arcade.View):
             if self.cursor_hand.icon_held:
                 self.icon_drop_swap(x, y)
                 self.cursor_hand.holding_icon = False
-            self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_point.png")
+            self.cursor_hand.texture = arcade.load_texture(
+                ":assets:cursor/glove_point.png"
+            )
 
         if button == arcade.MOUSE_BUTTON_RIGHT:
             pass
@@ -403,7 +407,9 @@ class HomeView(arcade.View):
         if collision_icon:
             for icon in collision_icon:
                 self.equip_item_to_player(icon)
-                self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_point.png")
+                self.cursor_hand.texture = arcade.load_texture(
+                    ":assets:cursor/glove_point.png"
+                )
 
     def inv_to_vault_check(self):
         collision_icon = arcade.check_for_collision_with_list(
@@ -477,7 +483,9 @@ class HomeView(arcade.View):
                     self.background = arcade.load_texture(":assets:background/4.png")
                     self.inventory_window.position_icons(self.inventory_icon_list)
                 elif button.description == "vault":
-                    self.vault_display()
+                    self.vault_window.display()
+                    self.right_side_button_list[1].state = True  # type: ignore
+                    self.background = arcade.load_texture(":assets:background/4.png")
                 elif button.description == "trade":
                     print("Trading")
                 elif button.description == "upgrade":
@@ -506,29 +514,9 @@ class HomeView(arcade.View):
         self.inventory_window.display()
         self.right_side_button_list[3].state = True
 
-    def refresh_inventory_window(self):
-        """Refreshes and repositions the current location of the icons within the inventory window"""
-        self.inventory_window.position_icons(self.inventory_icon_list)
-
-    def inventory_deactivate(self):
-        """Deactivates the inventory window display"""
-        self.inventory_window.open = False
-
-    def vault_display(self):
-        """Displays and positions the vault window"""
-        self.vault_window.open = True
-        self.position_vault_window()
-        self.right_side_button_list[1].state = True  # type: ignore
-        self.background = arcade.load_texture(":assets:background/4.png")
-
     def refresh_vault_window(self):
         """Refreshes and repositions the current location of the icons within the inventory window"""
         self.vault_window.position_icons(self.vault_icon_list)
-
-    def position_vault_window(self):
-        """Positions the vault window"""
-        self.vault_window.center_x = GAME_WIDTH - self.vault_window.width / 2 - 65
-        self.vault_window.center_y = GAME_HEIGHT / 2
 
     def deactivate_all_windows(self):
         """Deactivates all window displays"""
@@ -561,13 +549,16 @@ class HomeView(arcade.View):
                 self.deactivate_all_buttons_windows()
                 self.inventory_window.display()
                 self.inventory_window.position_icons(self.inventory_icon_list)
+                self.right_side_button_list[1].state = True
 
         if key_pressed == key.V:
             if self.vault_window.open:
                 self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_side_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
-                self.vault_display()
+                self.vault_window.display()
+                self.right_side_button_list[1].state = True  # type: ignore
+                self.background = arcade.load_texture(":assets:background/4.png")
 
         if key_pressed == key.T:
             print("trade")

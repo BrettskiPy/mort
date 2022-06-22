@@ -3,6 +3,7 @@ from constants import *
 import arcade
 from arcade import Sprite, Texture, color
 
+
 class HandCursor(arcade.Sprite):
     def __init__(self, filename, scale=CURSOR_SCALE):
         super().__init__(filename, scale)
@@ -25,6 +26,7 @@ class HandCursor(arcade.Sprite):
     def set_cursor_position(self, x, y):
         self.center_x = x
         self.center_y = y
+
 
 class MenuButton(arcade.Sprite):
     def __init__(self, description, filename, scale):
@@ -70,6 +72,16 @@ class Vault(arcade.Sprite):
             arcade.draw_rectangle_outline(
                 v["x"], v["y"], v["width"], v["height"], color=color.LAVA
             )
+
+    def display(self):
+        """Displays and positions the vault window"""
+        self.open = True
+        self.position_vault_window()
+
+    def position_vault_window(self):
+        """Positions the vault window"""
+        self.center_x = GAME_WIDTH - self.width / 2 - 65
+        self.center_y = GAME_HEIGHT / 2
 
     def deactivate(self):
         """Deactivates the vault window display"""
@@ -230,9 +242,7 @@ class Inventory(arcade.Sprite):
 
     def position_inventory_window(self):
         """Positions the inventory window"""
-        self.center_x = (
-                GAME_WIDTH - self.width / 2 - 65
-        )
+        self.center_x = GAME_WIDTH - self.width / 2 - 65
         self.center_y = GAME_HEIGHT / 2
 
     def deactivate(self):
