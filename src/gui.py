@@ -87,6 +87,11 @@ class Vault(arcade.Sprite):
         """Deactivates the vault window display"""
         self.open = False
 
+    def refresh(self, vault_icon_list):
+        """Refreshes and repositions the current location of the icons within the inventory window"""
+        if self.open:
+            self.position_icons(vault_icon_list)
+
     def map_carry_positions(self):
         # FIXME This function is trash but works.....
         center_x = 713
@@ -249,7 +254,7 @@ class Inventory(arcade.Sprite):
         """Deactivates the inventory window display"""
         self.open = False
 
-    def refresh_inventory_window(self, inventory_icon_list):
+    def refresh(self, inventory_icon_list):
         """Refreshes and repositions the current location of the icons within the inventory window"""
         if self.open:
             self.position_icons(inventory_icon_list)

@@ -182,7 +182,8 @@ class HomeView(arcade.View):
                 ":assets:cursor/glove_grab.png"
             )
             self.right_panel_onclick_actions()
-            self.cursor_holding_icon_check()
+            if self.inventory_window.open:
+                self.cursor_holding_icon_check()
 
         elif button == arcade.MOUSE_BUTTON_RIGHT:
             if self.item_to_vault_enabled:
@@ -197,6 +198,7 @@ class HomeView(arcade.View):
             if self.cursor_hand.icon_held:
                 self.icon_drop_swap(x, y)
                 self.cursor_hand.holding_icon = False
+                self.cursor_hand.icon_held = None
             self.cursor_hand.texture = arcade.load_texture(
                 ":assets:cursor/glove_point.png"
             )
@@ -377,6 +379,8 @@ class HomeView(arcade.View):
             self.cursor_hand.holding_icon = True
             for icon in collision:
                 self.cursor_hand.icon_held = icon
+        else:
+            self.cursor_hand.icon_held = None
 
     def slot_icon_to_inv_check(self):
         """Checks for a cursor collision with an equipped slot icon. It will then create a new icon in the inventory with
@@ -514,10 +518,6 @@ class HomeView(arcade.View):
         self.inventory_window.display()
         self.right_side_button_list[3].state = True
 
-    def refresh_vault_window(self):
-        """Refreshes and repositions the current location of the icons within the inventory window"""
-        self.vault_window.position_icons(self.vault_icon_list)
-
     def deactivate_all_windows(self):
         """Deactivates all window displays"""
         self.inventory_window.deactivate()
@@ -536,8 +536,8 @@ class HomeView(arcade.View):
 
     def refresh_all_windows(self):
         """Refreshes all active windows with their respective icon positions"""
-        self.inventory_window.refresh_inventory_window(self.inventory_icon_list)
-        self.refresh_vault_window()
+        self.inventory_window.refresh(self.inventory_icon_list)
+        self.vault_window.refresh(self.vault_icon_list)
 
     def window_key_router(self, key_pressed):
         """A router for all keys that display windows (such as inventory or vault)"""
