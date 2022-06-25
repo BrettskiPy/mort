@@ -5,7 +5,12 @@ from arcade import Sprite, Texture, color
 
 
 class RightPanel(arcade.Sprite):
-    def __init__(self, button_list, filename, scale=HOME_RIGHT_PANEL):
+    def __init__(
+        self,
+        button_list,
+        filename=":assets:gui/right_side_bar.png",
+        scale=HOME_RIGHT_PANEL,
+    ):
         super().__init__(filename, scale)
         self.center_x = GAME_WIDTH - 30
         self.center_y = GAME_HEIGHT / 2
@@ -29,7 +34,7 @@ class RightPanel(arcade.Sprite):
 
 
 class HandCursor(arcade.Sprite):
-    def __init__(self, filename, scale=CURSOR_SCALE):
+    def __init__(self, filename=":assets:cursor/glove_point.png", scale=CURSOR_SCALE):
         super().__init__(filename, scale)
         self.set_hit_box([[-14, 0], [-35, 40], [10, 10]])
         self.holding_icon = False
@@ -53,7 +58,7 @@ class HandCursor(arcade.Sprite):
 
     def holding_icon_check(self, window, *args):
         """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being
-         held, it will transfer the item's data into the cursor_hand object"""
+        held, it will transfer the item's data into the cursor_hand object"""
         if window.open:
             collision = arcade.check_for_collision_with_lists(
                 self,
@@ -65,6 +70,17 @@ class HandCursor(arcade.Sprite):
                     self.icon_held = icon
             else:
                 self.icon_held = None
+
+    def point(self):
+        self.texture = arcade.load_texture(":assets:cursor/glove_point.png")
+
+    def grab(self):
+        self.texture = arcade.load_texture(":assets:cursor/glove_grab.png")
+
+    def reset(self):
+        self.holding_icon = False
+        self.icon_held = None
+        self.point()
 
 
 class MenuButton(arcade.Sprite):
@@ -84,6 +100,7 @@ class MenuButton(arcade.Sprite):
         """Deactivates all buttons"""
         for button in button_list:
             button.state = False
+
 
 class ItemStatPopup(arcade.Sprite):
     def __init__(self, show=False):
@@ -137,21 +154,25 @@ class ItemStatPopup(arcade.Sprite):
 
 
 class Portrait(arcade.Sprite):
-    def __init__(self, filename, scale):
+    def __init__(self, filename=":assets:gui/portraits/23.png", scale=PORTRAIT_SCALE):
         super().__init__(filename, scale)
         self.center_x = 115
         self.center_y = GAME_HEIGHT - 90
 
 
 class PortraitFrame(arcade.Sprite):
-    def __init__(self, filename, scale):
+    def __init__(
+        self,
+        filename=":assets:gui/portrait_frame/portrait_frame.png",
+        scale=PORTRAIT_PANEL_SCALE,
+    ):
         super().__init__(filename, scale)
         self.center_x = 280
         self.center_y = GAME_HEIGHT - 89
 
 
 class Vault(arcade.Sprite):
-    def __init__(self, filename, scale=CURSOR_SCALE, open=False):
+    def __init__(self, filename=":assets:gui/vault.png", scale=VAULT_SCALE, open=False):
         super().__init__(filename, scale)
         self.open = open
         self.mapped_carry_positions: dict = self.map_carry_positions()
@@ -311,7 +332,9 @@ class Vault(arcade.Sprite):
 
 
 class Inventory(arcade.Sprite):
-    def __init__(self, filename, scale=CURSOR_SCALE, open=False):
+    def __init__(
+        self, filename=":assets:gui/inventory.png", scale=INVENTORY_SCALE, open=False
+    ):
         super().__init__(filename, scale)
         self.open = open
         self.mapped_carry_positions: dict = self.map_carry_positions()

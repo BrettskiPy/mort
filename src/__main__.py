@@ -1,5 +1,6 @@
 import random
 from dataclasses import dataclass
+from typing import Dict
 
 from armor import *
 from player import Player
@@ -25,8 +26,6 @@ class HomeView(arcade.View):
 
         # Background image will be stored in this variable
         # Local game states
-        self.time_of_day = 255
-        self.daylight = True
         self.upgrading = False
         self.upgrade_pentagram: arcade.Sprite = arcade.Sprite(
             ":assets:gui/upgrade_area/pentagram.png",
@@ -68,38 +67,30 @@ class HomeView(arcade.View):
         self.vault_icon_list: arcade.SpriteList = arcade.SpriteList()
 
         # Sprite variables
-        self.player: Player = Player(":assets:base/demigod_male.png", PLAYER_SCALE)
-        self.cursor_hand: HandCursor = HandCursor(
-            ":assets:cursor/glove_point.png",
-            CURSOR_SCALE,
-        )
-        self.inventory_window: Inventory = Inventory(
-            ":assets:gui/inventory.png",
-            INGAME_WINDOW_SCALE,
-        )
-        self.vault_window: Vault = Vault(
-            ":assets:gui/vault.png",
-            INGAME_WINDOW_SCALE,
-        )
+        self.player: Player = Player()
+        self.cursor_hand: HandCursor = HandCursor()
+        self.inventory_window: Inventory = Inventory()
+        self.vault_window: Vault = Vault()
 
-        self.portrait_frame: PortraitFrame = PortraitFrame(
-            ":assets:gui/portrait_frame/portrait_frame.png",
-            PORTRAIT_PANEL_SCALE,
-        )
-        self.portrait: Portrait = Portrait(
-            ":assets:gui/portraits/23.png",
-            PORTRAIT_SCALE,
-        )
+        self.portrait_frame: PortraitFrame = PortraitFrame()
+        self.portrait: Portrait = Portrait()
         self.total_item_stats: dict = {}
         self.item_popup = ItemStatPopup()
 
-        # Sound and music
-        self.music_player: arcade.Sound = arcade.Sound(
-            file_name=":assets:music/the_field_of_dreams.mp3",
-            streaming=True,
-        )
+        # Music
+        self.songs: Dict[str : arcade.Sound] = {
+            "dreams": arcade.Sound(
+                file_name=":assets:music/the_field_of_dreams.mp3",
+                streaming=True,
+            )
+        }
         self.music_volume = 1
-        self.sound: arcade.Sound = arcade.Sound(":assets:sounds/inventory/equip.mp3")
+
+        # Sound
+        self.sounds: Dict[str : arcade.Sound] = {
+            "equip": arcade.Sound(":assets:sounds/inventory/equip.mp3"),
+            "swap": arcade.Sound(":assets:sounds/inventory/item_swap.mp3"),
+        }
         self.sound_volume = 0.5
 
     def setup(self):
@@ -107,12 +98,10 @@ class HomeView(arcade.View):
         self.static_gui_list.append(
             RightPanel(
                 self.right_panel_button_list,
-                ":assets:gui/right_side_bar.png",
-                HOME_RIGHT_PANEL,
             )
         )
         self.generate_test_server_items()
-        self.music_player.play(
+        self.songs["dreams"].play(
             loop=True,
             speed=0.6,
         )
@@ -181,16 +170,11 @@ class HomeView(arcade.View):
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
-            self.cursor_hand.texture = arcade.load_texture(
-                ":assets:cursor/glove_grab.png"
-            )
             self.right_panel_click_actions()
-            for window in [self.inventory_window, self.vault_window]:
-                self.cursor_hand.holding_icon_check(
-                    window, self.inventory_icon_list, self.vault_icon_list
-                )
+            self.cursor_hand.grab()
+            self.holdable_icon_in_windows_check()
 
-        elif button == arcade.MOUSE_BUTTON_RIGHT:
+        if button == arcade.MOUSE_BUTTON_RIGHT:
             if self.item_to_vault_enabled:
                 self.inv_to_vault_check()
             else:
@@ -203,11 +187,7 @@ class HomeView(arcade.View):
         if button == arcade.MOUSE_BUTTON_LEFT:
             if self.cursor_hand.icon_held:
                 self.icon_drop_swap(x, y)
-                self.cursor_hand.holding_icon = False
-                self.cursor_hand.icon_held = None
-            self.cursor_hand.texture = arcade.load_texture(
-                ":assets:cursor/glove_point.png"
-            )
+        self.cursor_hand.reset()
 
         if button == arcade.MOUSE_BUTTON_RIGHT:
             pass
@@ -254,6 +234,12 @@ class HomeView(arcade.View):
         if key_pressed in (key.UP, key.DOWN):
             self.upgrade_status = None
 
+    def holdable_icon_in_windows_check(self):
+        for window in [self.inventory_window, self.vault_window]:
+            self.cursor_hand.holding_icon_check(
+                window, self.inventory_icon_list, self.vault_icon_list
+            )
+
     def slot_icon_to_inv_check(self):
         """Checks for a cursor collision with an equipped slot icon. It will then create a new icon in the inventory with
         the respective item data"""
@@ -271,7 +257,6 @@ class HomeView(arcade.View):
                 icon.item_referenced.kill()
                 icon.kill()
                 self.refresh_all_windows()
-                self.sound.play(volume=self.sound_volume)
 
     def inv_icon_to_equip_check(self):
         """Checks for a cursor collision with an inventory item. It will then create a new icon in the correct item type
@@ -284,9 +269,7 @@ class HomeView(arcade.View):
             if collision_icon:
                 for icon in collision_icon:
                     self.equip_item_to_player(icon)
-                    self.cursor_hand.texture = arcade.load_texture(
-                        ":assets:cursor/glove_point.png"
-                    )
+                    self.cursor_hand.point()
 
     def inv_to_vault_check(self):
         collision_icon = arcade.check_for_collision_with_list(
@@ -303,7 +286,6 @@ class HomeView(arcade.View):
                 icon.item_referenced.kill()
                 icon.kill()
                 self.refresh_all_windows()
-                self.sound.play(volume=self.sound_volume)
 
     def right_panel_click_actions(self):
         """Activates actions based on a user clicking the respective button"""
@@ -336,9 +318,6 @@ class HomeView(arcade.View):
 
     def inventory_display_from_upgrade(self):
         """Displays and positions the inventory window within the upgrade area"""
-        self.inventory_window = Inventory(
-            ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
-        )
         self.inventory_window.display()
         self.right_panel_button_list[3].state = True
 
@@ -443,10 +422,9 @@ class HomeView(arcade.View):
                     ):
                         self.cursor_hand.icon_held.inv_pos = inv_number
 
-        self.sound = arcade.Sound(":assets:sounds/inventory/item_swap.mp3")
-        self.sound.play(volume=self.sound_volume)
+        self.sounds["swap"].play(volume=self.sound_volume)
         self.refresh_all_windows()
-        self.cursor_hand.texture = arcade.load_texture(":assets:cursor/glove_point.png")
+        self.cursor_hand.point()
 
     def equip_item_to_player(self, icon):
         """Checks the type of item about to be equipped and places the new icon in the correct inventory slot position
@@ -458,8 +436,7 @@ class HomeView(arcade.View):
                 self.equip_swap(icon, item_type)
             else:
                 self.equip_empty_slot(icon)
-        self.sound = arcade.Sound(":assets:sounds/inventory/equip.mp3")
-        self.sound.play(volume=self.sound_volume)
+        self.sounds["equip"].play(volume=self.sound_volume)
         self.refresh_all_windows()
         icon.kill()
 
