@@ -75,7 +75,11 @@ class HomeView(arcade.View):
         self.portrait_frame: PortraitFrame = PortraitFrame()
         self.portrait: Portrait = Portrait()
         self.total_item_stats: dict = {}
-        self.item_popup = ItemStatPopup()
+        self.item_popup = ItemStatPopup(
+            self.inventory_icon_list,
+            self.vault_icon_list,
+            self.inventory_icon_slot_list,
+        )
 
         # Music
         self.songs: Dict[str : arcade.Sound] = {
@@ -144,9 +148,6 @@ class HomeView(arcade.View):
         if self.item_popup:
             self.item_popup.item_background_popup_show(
                 self.cursor_hand,
-                self.inventory_icon_list,
-                self.vault_icon_list,
-                self.inventory_icon_slot_list,
             )
 
         self.cursor_hand.draw()

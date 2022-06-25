@@ -103,22 +103,23 @@ class MenuButton(arcade.Sprite):
 
 
 class ItemStatPopup(arcade.Sprite):
-    def __init__(self, show=False):
+    def __init__(self, inv_icon_list, vault_icon_list, inv_slot_icon_list, show=False):
         super().__init__()
         self.show = show
+        self.inv_icon_list = inv_icon_list
+        self.vault_icon_list = vault_icon_list
+        self.inv_slot_icon_list = inv_slot_icon_list
 
-    def item_background_popup_show(
-        self, cursor, inv_icon_list, vault_icon_list, inv_slot_icon_list
-    ):
+    def item_background_popup_show(self, cursor):
         """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
         stats to be drawn on"""
         if self.show:
             collision = arcade.check_for_collision_with_lists(
                 cursor,
                 (
-                    inv_icon_list,
-                    vault_icon_list,
-                    inv_slot_icon_list,
+                    self.inv_icon_list,
+                    self.vault_icon_list,
+                    self.inv_slot_icon_list,
                 ),
             )
             for icon in collision:
