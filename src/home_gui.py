@@ -47,9 +47,7 @@ class HandCursor(arcade.Sprite):
                 self.center_y - self.icon_held.height / 2 + 10,
                 self.icon_held.width,
                 self.icon_held.height,
-                self.icon_held.texture
-                if self.icon_held.texture is not None
-                else Texture("holding_icon"),  # Gotta find a better way to do this
+                self.icon_held.texture,
             )
 
     def set_cursor_position(self, x, y):
@@ -103,19 +101,28 @@ class MenuButton(arcade.Sprite):
 
 
 class ItemStatPopup(arcade.Sprite):
-    def __init__(self, inv_icon_list, vault_icon_list, inv_slot_icon_list, show=False):
+    def __init__(
+        self, cursor, inv_icon_list, vault_icon_list, inv_slot_icon_list, showing=False
+    ):
         super().__init__()
-        self.show = show
+        self.showing = showing
+        self.cursor = cursor
         self.inv_icon_list = inv_icon_list
         self.vault_icon_list = vault_icon_list
         self.inv_slot_icon_list = inv_slot_icon_list
 
-    def item_background_popup_show(self, cursor):
+    def show(self):
+        self.showing = True
+
+    def hide(self):
+        self.showing = False
+
+    def item_background_popup_display(self):
         """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
         stats to be drawn on"""
-        if self.show:
+        if self.showing:
             collision = arcade.check_for_collision_with_lists(
-                cursor,
+                self.cursor,
                 (
                     self.inv_icon_list,
                     self.vault_icon_list,

@@ -76,6 +76,7 @@ class HomeView(arcade.View):
         self.portrait: Portrait = Portrait()
         self.total_item_stats: dict = {}
         self.item_popup = ItemStatPopup(
+            self.cursor_hand,
             self.inventory_icon_list,
             self.vault_icon_list,
             self.inventory_icon_slot_list,
@@ -142,13 +143,8 @@ class HomeView(arcade.View):
                 if button.state:
                     button.display_clicked()
 
-        if self.cursor_hand.holding_icon:
-            self.cursor_hand.grab_icon()
-
-        if self.item_popup:
-            self.item_popup.item_background_popup_show(
-                self.cursor_hand,
-            )
+        self.cursor_hand.grab_icon()
+        self.item_popup.item_background_popup_display()
 
         self.cursor_hand.draw()
 
@@ -176,9 +172,10 @@ class HomeView(arcade.View):
             self.holdable_icon_in_windows_check()
 
         if button == arcade.MOUSE_BUTTON_RIGHT:
-            if self.item_to_vault_enabled:
+            if self.item_to_vault_enabled and self.inventory_window.open:
                 self.inv_to_vault_check()
-            else:
+
+            if self.inventory_window.open:
                 self.inv_icon_to_equip_check()
                 self.slot_icon_to_inv_check()
                 self.inventory_window.calculate_total_item_stats(self.equipped_list)
@@ -197,7 +194,7 @@ class HomeView(arcade.View):
         self.window_key_router(key_pressed)
 
         if key_pressed == key.LCTRL or modifiers == key.MOD_CTRL:
-            self.item_popup.show = True
+            self.item_popup.show()
 
         if key_pressed == key.LALT or modifiers == key.MOD_ALT:
             self.item_to_vault_enabled = True
@@ -227,7 +224,7 @@ class HomeView(arcade.View):
 
     def on_key_release(self, key_pressed, modifiers):
         if key_pressed == key.LCTRL:
-            self.item_popup.show = False
+            self.item_popup.hide()
 
         if key_pressed == key.LALT:
             self.item_to_vault_enabled = False
