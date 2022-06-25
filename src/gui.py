@@ -4,6 +4,36 @@ import arcade
 from arcade import Sprite, Texture, color
 
 
+class HomeRightPanel(arcade.Sprite):
+    def __init__(self, button_list, filename, scale=HOME_RIGHT_PANEL):
+        super().__init__(filename, scale)
+        self.center_x = GAME_WIDTH - 30
+        self.center_y = GAME_HEIGHT / 2
+        self.generate_buttons(button_list)
+
+    @classmethod
+    def deactivate_all_buttons(cls, button_list):
+        """Deactivates all buttons"""
+        for button in button_list:
+            button.state = False
+
+    @classmethod
+    def generate_buttons(cls, button_list):
+        """Generates the buttons and button panel on the right of the home screen"""
+        buttons = ["inventory", "vault", "trade", "upgrade", "portals", "fight"]
+        height = 136
+        for button in range(len(buttons)):
+            menu_button = MenuButton(
+                buttons[button],
+                f":assets:gui/button/{buttons[button]}.png",
+                RIGHT_BUTTON_SCALE,
+            )
+            menu_button.center_x = GAME_WIDTH - 29
+            menu_button.center_y = GAME_HEIGHT / 2 + height
+            button_list.append(menu_button)
+            height -= 54
+
+
 class HandCursor(arcade.Sprite):
     def __init__(self, filename, scale=CURSOR_SCALE):
         super().__init__(filename, scale)
@@ -27,6 +57,21 @@ class HandCursor(arcade.Sprite):
         self.center_x = x
         self.center_y = y
 
+    def holding_icon_check(self, window, *args):
+        """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being held,
+        it will transfer the item's data into the cursor_hand object"""
+        if window.open:
+            collision = arcade.check_for_collision_with_lists(
+                self,
+                args,
+            )
+            if collision:
+                self.holding_icon = True
+                for icon in collision:
+                    self.icon_held = icon
+            else:
+                self.icon_held = None
+
 
 class MenuButton(arcade.Sprite):
     def __init__(self, description, filename, scale):
@@ -39,6 +84,11 @@ class MenuButton(arcade.Sprite):
             arcade.draw_rectangle_outline(
                 self.center_x, self.center_y, 54, 54, color.GOLD, 3
             )
+
+    def generate_button_sequence(
+        self,
+    ):
+        pass
 
 
 class Portrait(arcade.Sprite):
@@ -89,8 +139,7 @@ class Vault(arcade.Sprite):
 
     def refresh(self, vault_icon_list):
         """Refreshes and repositions the current location of the icons within the inventory window"""
-        if self.open:
-            self.position_icons(vault_icon_list)
+        self.position_icons(vault_icon_list)
 
     def map_carry_positions(self):
         # FIXME This function is trash but works.....

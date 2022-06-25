@@ -24,10 +24,6 @@ class HomeView(arcade.View):
         super().__init__()
 
         # Background image will be stored in this variable
-        self.background: arcade.Texture = arcade.load_texture(
-            ":assets:background/4.png"
-        )
-
         # Local game states
         self.time_of_day = 255
         self.daylight = True
@@ -45,7 +41,7 @@ class HomeView(arcade.View):
         self.player_list: arcade.SpriteList = arcade.SpriteList()
         self.inventory_slot_list: arcade.SpriteList = arcade.SpriteList()
         self.static_gui_list: arcade.SpriteList = arcade.SpriteList()
-        self.right_side_button_list: arcade.SpriteList = arcade.SpriteList()
+        self.right_panel_button_list: arcade.SpriteList = arcade.SpriteList()
         self.inventory_list: arcade.SpriteList = arcade.SpriteList()
 
         # Animations
@@ -108,8 +104,14 @@ class HomeView(arcade.View):
 
     def setup(self):
         self.player_list.append(self.player)
+        self.static_gui_list.append(
+            HomeRightPanel(
+                self.right_panel_button_list,
+                ":assets:gui/right_side_bar.png",
+                HOME_RIGHT_PANEL,
+            )
+        )
         self.generate_test_server_items()
-        self.generate_home_right_panel()
         self.music_player.play(
             loop=True,
             speed=0.6,
@@ -120,12 +122,11 @@ class HomeView(arcade.View):
         self.clear()
         self.window.apply_game_camera()
 
-        self.timed_lighting_with_background()
         self.portrait.draw(pixelated=True)
         self.portrait_frame.draw(pixelated=True)
         self.player_list.draw(pixelated=True)
         self.static_gui_list.draw(pixelated=True)
-        self.right_side_button_list.draw(pixelated=True)
+        self.right_panel_button_list.draw(pixelated=True)
         # FIXME have this sort by the proper draw order when equipment gets added to the list
         self.equipped_list.draw(pixelated=True)
 
@@ -144,7 +145,7 @@ class HomeView(arcade.View):
             # self.vault_window.display_positions()  # debugging visual
             self.vault_icon_list.draw(pixelated=True)
 
-        for button in self.right_side_button_list:
+        for button in self.right_panel_button_list:
             if isinstance(
                 button, MenuButton
             ):  # In case the button isn't a MenuButton and yes, linters hate it when we don't do this
@@ -182,8 +183,10 @@ class HomeView(arcade.View):
                 ":assets:cursor/glove_grab.png"
             )
             self.right_panel_onclick_actions()
-            if self.inventory_window.open:
-                self.cursor_holding_icon_check()
+            for window in [self.inventory_window, self.vault_window]:
+                self.cursor_hand.holding_icon_check(
+                    window, self.inventory_icon_list, self.vault_icon_list
+                )
 
         elif button == arcade.MOUSE_BUTTON_RIGHT:
             if self.item_to_vault_enabled:
@@ -368,20 +371,6 @@ class HomeView(arcade.View):
                         ).draw()
                     weapon_text_y -= 35
 
-    def cursor_holding_icon_check(self):
-        """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being held,
-        it will transfer the item's data into the cursor_hand object"""
-        collision = arcade.check_for_collision_with_list(
-            self.cursor_hand,
-            self.inventory_icon_list,
-        )
-        if collision:
-            self.cursor_hand.holding_icon = True
-            for icon in collision:
-                self.cursor_hand.icon_held = icon
-        else:
-            self.cursor_hand.icon_held = None
-
     def slot_icon_to_inv_check(self):
         """Checks for a cursor collision with an equipped slot icon. It will then create a new icon in the inventory with
         the respective item data"""
@@ -404,16 +393,17 @@ class HomeView(arcade.View):
     def inv_icon_to_equip_check(self):
         """Checks for a cursor collision with an inventory item. It will then create a new icon in the correct item type
         equipped slot. This new icon will also contain the item's data"""
-        collision_icon = arcade.check_for_collision_with_list(
-            self.cursor_hand,
-            self.inventory_icon_list,
-        )
-        if collision_icon:
-            for icon in collision_icon:
-                self.equip_item_to_player(icon)
-                self.cursor_hand.texture = arcade.load_texture(
-                    ":assets:cursor/glove_point.png"
-                )
+        if self.inventory_window.open:
+            collision_icon = arcade.check_for_collision_with_list(
+                self.cursor_hand,
+                self.inventory_icon_list,
+            )
+            if collision_icon:
+                for icon in collision_icon:
+                    self.equip_item_to_player(icon)
+                    self.cursor_hand.texture = arcade.load_texture(
+                        ":assets:cursor/glove_point.png"
+                    )
 
     def inv_to_vault_check(self):
         collision_icon = arcade.check_for_collision_with_list(
@@ -432,48 +422,10 @@ class HomeView(arcade.View):
                 self.refresh_all_windows()
                 self.sound.play(volume=self.sound_volume)
 
-    def timed_lighting_with_background(self):
-        """Draws a background that slowly changes from light/dark"""
-        if self.daylight:
-            self.time_of_day -= DAYLIGHT_SPEED
-            if self.time_of_day < 1:
-                self.daylight = False
-        else:
-            self.time_of_day += DAYLIGHT_SPEED
-            if self.time_of_day == 255:
-                self.daylight = True
-        arcade.draw_lrwh_rectangle_textured(
-            0,
-            0,
-            GAME_WIDTH,
-            GAME_HEIGHT,
-            self.background,
-            alpha=round(self.time_of_day),
-        )
-
-    def generate_home_right_panel(self):
-        """Generates the buttons and button panel on the right of the home screen"""
-        self.right_side_bar = arcade.Sprite(":assets:gui/right_side_bar.png", 1.5)
-        self.position_home_right_panel()
-        self.static_gui_list.append(self.right_side_bar)
-
-        buttons = ["inventory", "vault", "trade", "upgrade", "portals", "fight"]
-        height = 136
-        for button in range(len(buttons)):
-            self.button = MenuButton(
-                buttons[button],
-                f":assets:gui/button/{buttons[button]}.png",
-                RIGHT_BUTTON_SCALE,
-            )
-            self.button.center_x = GAME_WIDTH - 29
-            self.button.center_y = GAME_HEIGHT / 2 + height
-            self.right_side_button_list.append(self.button)
-            height -= 54
-
     def right_panel_onclick_actions(self):
         """Activates actions based on a user clicking the respective button"""
         for button in arcade.check_for_collision_with_list(
-            self.cursor_hand, self.right_side_button_list
+            self.cursor_hand, self.right_panel_button_list
         ):
             button: MenuButton
             if button.state:
@@ -483,20 +435,15 @@ class HomeView(arcade.View):
                 button.state = True
                 if button.description == "inventory":
                     self.inventory_window.display()
-                    self.right_side_button_list[0].state = True
-                    self.background = arcade.load_texture(":assets:background/4.png")
+                    self.right_panel_button_list[0].state = True
                     self.inventory_window.position_icons(self.inventory_icon_list)
                 elif button.description == "vault":
                     self.vault_window.display()
-                    self.right_side_button_list[1].state = True  # type: ignore
-                    self.background = arcade.load_texture(":assets:background/4.png")
+                    self.right_panel_button_list[1].state = True  # type: ignore
                 elif button.description == "trade":
                     print("Trading")
                 elif button.description == "upgrade":
                     print("upgrading")
-                    self.background = arcade.load_texture(
-                        ":assets:background/plain_black.png"
-                    )
                     self.inventory_display_from_upgrade()
                     self.inventory_window.position_icons(self.inventory_icon_list)
                     self.upgrading = True
@@ -506,17 +453,13 @@ class HomeView(arcade.View):
                 elif button.description == "fight":
                     print("fighting")
 
-    def position_home_right_panel(self):
-        self.right_side_bar.center_x = GAME_WIDTH - 30
-        self.right_side_bar.center_y = GAME_HEIGHT / 2
-
     def inventory_display_from_upgrade(self):
         """Displays and positions the inventory window within the upgrade area"""
         self.inventory_window = Inventory(
             ":assets:gui/inventory.png", INGAME_WINDOW_SCALE
         )
         self.inventory_window.display()
-        self.right_side_button_list[3].state = True
+        self.right_panel_button_list[3].state = True
 
     def deactivate_all_windows(self):
         """Deactivates all window displays"""
@@ -525,13 +468,13 @@ class HomeView(arcade.View):
 
     def deactivate_all_buttons(self):
         """Deactivates all buttons"""
-        for other_buttons in self.right_side_button_list:
+        for other_buttons in self.right_panel_button_list:
             other_buttons.state = False  # type: ignore
 
     def deactivate_all_buttons_windows(self):
         """Deactivates all buttons and all windows"""
         self.deactivate_all_windows()
-        self.deactivate_all_buttons()
+        HomeRightPanel.deactivate_all_buttons(self.right_panel_button_list)
         self.upgrading = False
 
     def refresh_all_windows(self):
@@ -545,20 +488,19 @@ class HomeView(arcade.View):
         if key_pressed == key.I:
             if self.inventory_window.open:
                 self.deactivate_all_buttons_windows()
-            elif [button.state for button in self.right_side_button_list]:  # type: ignore
+            elif [button.state for button in self.right_panel_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
                 self.inventory_window.display()
                 self.inventory_window.position_icons(self.inventory_icon_list)
-                self.right_side_button_list[1].state = True
+                self.right_panel_button_list[0].state = True
 
         if key_pressed == key.V:
             if self.vault_window.open:
                 self.deactivate_all_buttons_windows()
-            elif [button.state for button in self.right_side_button_list]:  # type: ignore
+            elif [button.state for button in self.right_panel_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
                 self.vault_window.display()
-                self.right_side_button_list[1].state = True  # type: ignore
-                self.background = arcade.load_texture(":assets:background/4.png")
+                self.right_panel_button_list[1].state = True  # type: ignore
 
         if key_pressed == key.T:
             print("trade")
@@ -567,9 +509,6 @@ class HomeView(arcade.View):
             if self.upgrading:
                 self.deactivate_all_buttons_windows()
             else:
-                self.background = arcade.load_texture(
-                    ":assets:background/plain_black.png"
-                )
                 self.inventory_display_from_upgrade()
                 self.inventory_window.position_icons(self.inventory_icon_list)
                 self.upgrading = True
