@@ -3,14 +3,14 @@ from dataclasses import dataclass
 
 from armor import *
 from player import Player
-from gui import *
+from home_gui import *
 from icon import *
 from item_local_map import item_map
 from game_window import GameWindow
 from animation import UpgradeAnimation
 
 import arcade
-from arcade import color as arcade_color, key, resources
+from arcade import key, resources
 
 # TODO remove this when server is done
 @dataclass
@@ -91,7 +91,7 @@ class HomeView(arcade.View):
             PORTRAIT_SCALE,
         )
         self.total_item_stats: dict = {}
-        self.item_popup_background: bool = False
+        self.item_popup = ItemStatPopup()
 
         # Sound and music
         self.music_player: arcade.Sound = arcade.Sound(
@@ -105,7 +105,7 @@ class HomeView(arcade.View):
     def setup(self):
         self.player_list.append(self.player)
         self.static_gui_list.append(
-            HomeRightPanel(
+            RightPanel(
                 self.right_panel_button_list,
                 ":assets:gui/right_side_bar.png",
                 HOME_RIGHT_PANEL,
@@ -127,7 +127,6 @@ class HomeView(arcade.View):
         self.player_list.draw(pixelated=True)
         self.static_gui_list.draw(pixelated=True)
         self.right_panel_button_list.draw(pixelated=True)
-        # FIXME have this sort by the proper draw order when equipment gets added to the list
         self.equipped_list.draw(pixelated=True)
 
         if self.upgrading:
@@ -138,7 +137,7 @@ class HomeView(arcade.View):
             # self.inventory_window.display_positions()  # debugging visual
             self.inventory_icon_list.draw(pixelated=True)
             self.inventory_icon_slot_list.draw(pixelated=True)
-            self.display_total_item_stats()
+            self.inventory_window.display_total_item_stats()
 
         if self.vault_window.open:
             self.vault_window.draw(pixelated=True)
@@ -146,17 +145,20 @@ class HomeView(arcade.View):
             self.vault_icon_list.draw(pixelated=True)
 
         for button in self.right_panel_button_list:
-            if isinstance(
-                button, MenuButton
-            ):  # In case the button isn't a MenuButton and yes, linters hate it when we don't do this
+            if isinstance(button, MenuButton):
                 if button.state:
                     button.display_clicked()
 
         if self.cursor_hand.holding_icon:
             self.cursor_hand.grab_icon()
 
-        if self.item_popup_background:
-            self.item_background_popup_show()
+        if self.item_popup:
+            self.item_popup.item_background_popup_show(
+                self.cursor_hand,
+                self.inventory_icon_list,
+                self.vault_icon_list,
+                self.inventory_icon_slot_list,
+            )
 
         self.cursor_hand.draw()
 
@@ -182,7 +184,7 @@ class HomeView(arcade.View):
             self.cursor_hand.texture = arcade.load_texture(
                 ":assets:cursor/glove_grab.png"
             )
-            self.right_panel_onclick_actions()
+            self.right_panel_click_actions()
             for window in [self.inventory_window, self.vault_window]:
                 self.cursor_hand.holding_icon_check(
                     window, self.inventory_icon_list, self.vault_icon_list
@@ -194,7 +196,8 @@ class HomeView(arcade.View):
             else:
                 self.inv_icon_to_equip_check()
                 self.slot_icon_to_inv_check()
-                self.calculate_total_item_stats()
+                self.inventory_window.calculate_total_item_stats(self.equipped_list)
+                self.inventory_window.display_total_item_stats()
 
     def on_mouse_release(self, x: float, y: float, button: int, modifiers: int):
         if button == arcade.MOUSE_BUTTON_LEFT:
@@ -213,7 +216,7 @@ class HomeView(arcade.View):
         self.window_key_router(key_pressed)
 
         if key_pressed == key.LCTRL or modifiers == key.MOD_CTRL:
-            self.item_popup_background = True
+            self.item_popup.show = True
 
         if key_pressed == key.LALT or modifiers == key.MOD_ALT:
             self.item_to_vault_enabled = True
@@ -243,133 +246,13 @@ class HomeView(arcade.View):
 
     def on_key_release(self, key_pressed, modifiers):
         if key_pressed == key.LCTRL:
-            self.item_popup_background = False
+            self.item_popup.show = False
 
         if key_pressed == key.LALT:
             self.item_to_vault_enabled = False
 
         if key_pressed in (key.UP, key.DOWN):
             self.upgrade_status = None
-
-    def item_background_popup_show(self):
-        """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
-        stats to be drawn on"""
-        collision = arcade.check_for_collision_with_lists(
-            self.cursor_hand,
-            (
-                self.inventory_icon_list,
-                self.vault_icon_list,
-                self.inventory_icon_slot_list,
-            ),
-        )
-        for icon in collision:
-            if not isinstance(
-                icon, (InventoryIcon, VaultIcon, InventorySlotIcon)
-            ):  # linters 😔
-                return
-            arcade.draw_texture_rectangle(
-                icon.center_x,
-                icon.center_y + 100,
-                200,
-                150,
-                arcade.load_texture(":assets:gui/item_popup_background.png"),
-            )
-            arcade.Text(
-                icon.item_referenced.name.title().replace("_", " "),
-                icon.center_x - 85,
-                icon.center_y + 145,
-                arcade_color.BLEU_DE_FRANCE,
-                14,
-                bold=True,
-                align="center",
-                width=170,
-            ).draw()
-            y_offset = 120
-            for stat, value in icon.item_referenced.stats.items():
-                arcade.Text(
-                    f"{stat}: {value}",
-                    icon.center_x - 75,
-                    icon.center_y + y_offset,
-                    arcade_color.WHITE,
-                    12,
-                    align="center",
-                    width=150,
-                ).draw()
-                y_offset -= 25
-
-    def calculate_total_item_stats(self):
-        """Calculates the current item stats for both weapons and armor to be used for display in the inventory"""
-        self.total_item_stats = {}
-        for item in self.equipped_list:  # type: ignore
-            item: Item
-            for stat, value in item.stats.items():
-                if self.total_item_stats.get(stat):
-                    self.total_item_stats[stat] += value
-                else:
-                    self.total_item_stats[stat] = value
-
-    def display_total_item_stats(self):
-        """Displays the total item stats. This will differentiate between weapons and armor. Also it will display
-        the various stats with their respective colors."""
-        armor_starting_height = GAME_HEIGHT - 130
-        weapon_starting_height = GAME_HEIGHT - 320
-
-        armor_text_y = armor_starting_height
-        weapon_text_y = weapon_starting_height
-        stat_x_pos = 770
-
-        if self.total_item_stats:
-            for stat, value in self.total_item_stats.items():
-                stat_name = stat.lower()
-                if stat_name in ["health", "armor"]:
-                    if stat_name == "health":
-                        arcade.Text(
-                            f"{stat}: {value}",
-                            stat_x_pos,
-                            armor_text_y,
-                            arcade_color.RED_PURPLE,
-                            12,
-                            align="left",
-                        ).draw()
-                    elif stat_name == "armor":
-                        arcade.Text(
-                            f"{stat}: {value}",
-                            stat_x_pos,
-                            armor_text_y,
-                            arcade_color.ASH_GREY,
-                            12,
-                            align="left",
-                        ).draw()
-                    armor_text_y -= 35
-                else:
-                    if stat_name == "base damage":
-                        arcade.Text(
-                            f"{stat}: {value}",
-                            stat_x_pos,
-                            weapon_text_y,
-                            arcade_color.ASH_GREY,
-                            12,
-                            align="left",
-                        ).draw()
-                    elif stat_name == "fire damage":
-                        arcade.Text(
-                            f"{stat}: {value}",
-                            stat_x_pos,
-                            weapon_text_y,
-                            arcade_color.RED,
-                            12,
-                            align="left",
-                        ).draw()
-                    elif stat_name == "ice damage":
-                        arcade.Text(
-                            f"{stat}: {value}",
-                            stat_x_pos,
-                            weapon_text_y,
-                            arcade_color.CYAN,
-                            12,
-                            align="left",
-                        ).draw()
-                    weapon_text_y -= 35
 
     def slot_icon_to_inv_check(self):
         """Checks for a cursor collision with an equipped slot icon. It will then create a new icon in the inventory with
@@ -422,7 +305,7 @@ class HomeView(arcade.View):
                 self.refresh_all_windows()
                 self.sound.play(volume=self.sound_volume)
 
-    def right_panel_onclick_actions(self):
+    def right_panel_click_actions(self):
         """Activates actions based on a user clicking the respective button"""
         for button in arcade.check_for_collision_with_list(
             self.cursor_hand, self.right_panel_button_list
@@ -435,11 +318,9 @@ class HomeView(arcade.View):
                 button.state = True
                 if button.description == "inventory":
                     self.inventory_window.display()
-                    self.right_panel_button_list[0].state = True
                     self.inventory_window.position_icons(self.inventory_icon_list)
                 elif button.description == "vault":
                     self.vault_window.display()
-                    self.right_panel_button_list[1].state = True  # type: ignore
                 elif button.description == "trade":
                     print("Trading")
                 elif button.description == "upgrade":
@@ -466,15 +347,10 @@ class HomeView(arcade.View):
         self.inventory_window.deactivate()
         self.vault_window.deactivate()
 
-    def deactivate_all_buttons(self):
-        """Deactivates all buttons"""
-        for other_buttons in self.right_panel_button_list:
-            other_buttons.state = False  # type: ignore
-
     def deactivate_all_buttons_windows(self):
         """Deactivates all buttons and all windows"""
         self.deactivate_all_windows()
-        HomeRightPanel.deactivate_all_buttons(self.right_panel_button_list)
+        MenuButton.deactivate_all_buttons(self.right_panel_button_list)
         self.upgrading = False
 
     def refresh_all_windows(self):

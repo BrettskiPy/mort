@@ -4,18 +4,12 @@ import arcade
 from arcade import Sprite, Texture, color
 
 
-class HomeRightPanel(arcade.Sprite):
+class RightPanel(arcade.Sprite):
     def __init__(self, button_list, filename, scale=HOME_RIGHT_PANEL):
         super().__init__(filename, scale)
         self.center_x = GAME_WIDTH - 30
         self.center_y = GAME_HEIGHT / 2
         self.generate_buttons(button_list)
-
-    @classmethod
-    def deactivate_all_buttons(cls, button_list):
-        """Deactivates all buttons"""
-        for button in button_list:
-            button.state = False
 
     @classmethod
     def generate_buttons(cls, button_list):
@@ -58,8 +52,8 @@ class HandCursor(arcade.Sprite):
         self.center_y = y
 
     def holding_icon_check(self, window, *args):
-        """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being held,
-        it will transfer the item's data into the cursor_hand object"""
+        """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being
+         held, it will transfer the item's data into the cursor_hand object"""
         if window.open:
             collision = arcade.check_for_collision_with_lists(
                 self,
@@ -85,10 +79,61 @@ class MenuButton(arcade.Sprite):
                 self.center_x, self.center_y, 54, 54, color.GOLD, 3
             )
 
-    def generate_button_sequence(
-        self,
+    @classmethod
+    def deactivate_all_buttons(cls, button_list):
+        """Deactivates all buttons"""
+        for button in button_list:
+            button.state = False
+
+class ItemStatPopup(arcade.Sprite):
+    def __init__(self, show=False):
+        super().__init__()
+        self.show = show
+
+    def item_background_popup_show(
+        self, cursor, inv_icon_list, vault_icon_list, inv_slot_icon_list
     ):
-        pass
+        """Upon pressing the required key and hovering over an item this popup will appear as a background for the item
+        stats to be drawn on"""
+        if self.show:
+            collision = arcade.check_for_collision_with_lists(
+                cursor,
+                (
+                    inv_icon_list,
+                    vault_icon_list,
+                    inv_slot_icon_list,
+                ),
+            )
+            for icon in collision:
+                arcade.draw_texture_rectangle(
+                    icon.center_x,
+                    icon.center_y + 100,
+                    200,
+                    150,
+                    arcade.load_texture(":assets:gui/item_popup_background.png"),
+                )
+                arcade.Text(
+                    icon.item_referenced.name.title().replace("_", " "),
+                    icon.center_x - 85,
+                    icon.center_y + 145,
+                    color.BLEU_DE_FRANCE,
+                    14,
+                    bold=True,
+                    align="center",
+                    width=170,
+                ).draw()
+                y_offset = 120
+                for stat, value in icon.item_referenced.stats.items():
+                    arcade.Text(
+                        f"{stat}: {value}",
+                        icon.center_x - 75,
+                        icon.center_y + y_offset,
+                        color.WHITE,
+                        12,
+                        align="center",
+                        width=150,
+                    ).draw()
+                    y_offset -= 25
 
 
 class Portrait(arcade.Sprite):
@@ -271,6 +316,7 @@ class Inventory(arcade.Sprite):
         self.open = open
         self.mapped_carry_positions: dict = self.map_carry_positions()
         self.mapped_slot_positions: dict = self.map_slot_positions()
+        self.total_item_stats = {}
 
     def position_icons(self, icon_list):
         if icon_list:
@@ -379,3 +425,76 @@ class Inventory(arcade.Sprite):
                 }
 
         return map_data
+
+    def calculate_total_item_stats(self, equipped_list):
+        """Calculates the current item stats for both weapons and armor to be used for display in the inventory"""
+        self.total_item_stats = {}
+        for item in equipped_list:
+            for stat, value in item.stats.items():
+                if self.total_item_stats.get(stat):
+                    self.total_item_stats[stat] += value
+                else:
+                    self.total_item_stats[stat] = value
+
+    def display_total_item_stats(self):
+        """Displays the total item stats. This will differentiate between weapons and armor. Also it will display
+        the various stats with their respective colors."""
+        armor_starting_height = GAME_HEIGHT - 130
+        weapon_starting_height = GAME_HEIGHT - 320
+
+        armor_text_y = armor_starting_height
+        weapon_text_y = weapon_starting_height
+        stat_x_pos = 770
+
+        if self.total_item_stats:
+            for stat, value in self.total_item_stats.items():
+                stat_name = stat.lower()
+                if stat_name in ["health", "armor"]:
+                    if stat_name == "health":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            armor_text_y,
+                            color.RED_PURPLE,
+                            12,
+                            align="left",
+                        ).draw()
+                    elif stat_name == "armor":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            armor_text_y,
+                            color.ASH_GREY,
+                            12,
+                            align="left",
+                        ).draw()
+                    armor_text_y -= 35
+                else:
+                    if stat_name == "base damage":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            weapon_text_y,
+                            color.ASH_GREY,
+                            12,
+                            align="left",
+                        ).draw()
+                    elif stat_name == "fire damage":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            weapon_text_y,
+                            color.RED,
+                            12,
+                            align="left",
+                        ).draw()
+                    elif stat_name == "ice damage":
+                        arcade.Text(
+                            f"{stat}: {value}",
+                            stat_x_pos,
+                            weapon_text_y,
+                            color.CYAN,
+                            12,
+                            align="left",
+                        ).draw()
+                    weapon_text_y -= 35
