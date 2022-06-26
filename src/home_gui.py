@@ -86,11 +86,13 @@ class MenuButton(arcade.Sprite):
         self.description = description
         self.state = False
 
-    def display_clicked(self):
-        if self.state:
-            arcade.draw_rectangle_outline(
-                self.center_x, self.center_y, 54, 54, color.GOLD, 3
-            )
+    @classmethod
+    def display_clicked(cls, right_panel):
+        for button in right_panel:
+            if button.state:
+                arcade.draw_rectangle_outline(
+                    button.center_x, button.center_y, 54, 54, color.GOLD, 3
+                )
 
     @classmethod
     def deactivate_all_buttons(cls, button_list):

@@ -103,6 +103,7 @@ class HomeView(arcade.View):
         self.player_list.draw(pixelated=True)
         self.static_gui_list.draw(pixelated=True)
         self.right_panel_button_list.draw(pixelated=True)
+        MenuButton.display_clicked(self.right_panel_button_list)
         if self.inventory_window.open:
             self.inventory_window.draw(pixelated=True)
             # self.inventory_window.display_positions()  # debugging visual
@@ -113,10 +114,6 @@ class HomeView(arcade.View):
             self.vault_window.draw(pixelated=True)
             # self.vault_window.display_positions()  # debugging visual
             self.vault_icon_list.draw(pixelated=True)
-        for button in self.right_panel_button_list:
-            if isinstance(button, MenuButton):
-                if button.state:
-                    button.display_clicked()
 
         # Sprite Lists
         self.equipped_list.draw(pixelated=True)
