@@ -1,7 +1,7 @@
 from constants import *
 
 import arcade
-from arcade import Sprite, Texture, color
+from arcade import Sprite, color
 
 
 class RightPanel(arcade.Sprite):
@@ -25,7 +25,6 @@ class RightPanel(arcade.Sprite):
             menu_button = MenuButton(
                 buttons[button],
                 f":assets:gui/button/{buttons[button]}.png",
-                RIGHT_BUTTON_SCALE,
             )
             menu_button.center_x = GAME_WIDTH - 29
             menu_button.center_y = GAME_HEIGHT / 2 + height
@@ -54,7 +53,7 @@ class HandCursor(arcade.Sprite):
         self.center_x = x
         self.center_y = y
 
-    def holding_icon_check(self, window, *args):
+    def attempt_icon_hold(self, window, *args):
         """Checks to see if the cursor is capable of holding onto an item's icon. If an item icon is capable of being
         held, it will transfer the item's data into the cursor_hand object"""
         if window.open:
@@ -82,7 +81,7 @@ class HandCursor(arcade.Sprite):
 
 
 class MenuButton(arcade.Sprite):
-    def __init__(self, description, filename, scale):
+    def __init__(self, description, filename, scale=RIGHT_BUTTON_SCALE):
         super().__init__(filename, scale)
         self.description = description
         self.state = False
@@ -188,8 +187,8 @@ class Vault(arcade.Sprite):
     def position_icons(self, icon_list):
         if icon_list:
             for icon in icon_list:
-                icon.center_x = self.mapped_carry_positions[icon.vault_pos]["x"]
-                icon.center_y = self.mapped_carry_positions[icon.vault_pos]["y"]
+                icon.center_x = self.mapped_carry_positions[icon.pos]["x"]
+                icon.center_y = self.mapped_carry_positions[icon.pos]["y"]
 
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
@@ -352,8 +351,8 @@ class Inventory(arcade.Sprite):
     def position_icons(self, icon_list):
         if icon_list:
             for icon in icon_list:
-                icon.center_x = self.mapped_carry_positions[icon.inv_pos]["x"]
-                icon.center_y = self.mapped_carry_positions[icon.inv_pos]["y"]
+                icon.center_x = self.mapped_carry_positions[icon.pos]["x"]
+                icon.center_y = self.mapped_carry_positions[icon.pos]["y"]
 
     def display_positions(self):
         for v in self.mapped_carry_positions.values():

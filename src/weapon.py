@@ -12,11 +12,8 @@ class MainHand(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y
 
 
 class OffHand(arcade.Sprite):
@@ -29,8 +26,5 @@ class OffHand(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y

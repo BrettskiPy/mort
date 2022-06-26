@@ -12,11 +12,8 @@ class Head(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y
 
 
 class Body(arcade.Sprite):
@@ -29,11 +26,8 @@ class Body(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y
 
 
 class Legs(arcade.Sprite):
@@ -46,11 +40,8 @@ class Legs(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y
 
 
 class Boots(arcade.Sprite):
@@ -63,11 +54,8 @@ class Boots(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y
 
 
 class Gloves(arcade.Sprite):
@@ -80,11 +68,8 @@ class Gloves(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y
 
 
 class Cloak(arcade.Sprite):
@@ -97,8 +82,5 @@ class Cloak(arcade.Sprite):
         self.name = name
 
     def update(self):
-        if self.player.alive:
-            self.center_x = self.player.center_x
-            self.center_y = self.player.center_y
-        else:
-            self.kill()
+        self.center_x = self.player.center_x
+        self.center_y = self.player.center_y
