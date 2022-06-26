@@ -170,7 +170,8 @@ class HomeView(arcade.View):
             pass
 
     def on_key_press(self, key_pressed, modifiers):
-        self.window_key_router(key_pressed)
+        self.inv_or_vault_key_router(key_pressed)
+        self.views_key_router(key_pressed)
 
         if key_pressed == key.LCTRL or modifiers == key.MOD_CTRL:
             self.item_popup.show()
@@ -284,8 +285,8 @@ class HomeView(arcade.View):
         self.inventory_window.refresh(self.inventory_icon_list)
         self.vault_window.refresh(self.vault_icon_list)
 
-    def window_key_router(self, key_pressed):
-        """A router for all keys that display windows (such as inventory or vault)"""
+    def inv_or_vault_key_router(self, key_pressed):
+        """A key router for inventory or vault"""
         # TODO refactor this into a clean function
         if key_pressed == key.I:
             if self.inventory_window.open:
@@ -302,6 +303,8 @@ class HomeView(arcade.View):
                 self.vault_window.display()
                 self.right_panel_button_list[1].state = True  # type: ignore
 
+    def views_key_router(self, key_pressed):
+        """A key router for views accessible from the home view"""
         if key_pressed == key.T:
             print("trade")
 
