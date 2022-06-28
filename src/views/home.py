@@ -20,9 +20,8 @@ class Item:
 
 
 class HomeView(arcade.View):
-    """The home view is the default view. This contains a panel on the right side of
-    the screen with links to various other views. Note: All panel options will transfer the home view to a new view
-    except for the inventory and vault options."""
+    """The home view is the default view. This view contains a right panel, inventory, and vault functionality .
+    Note: All panel options will transfer out of the home view except for the inventory and vault options."""
 
     def __init__(self):
         super().__init__()
@@ -46,12 +45,13 @@ class HomeView(arcade.View):
         self.inventory_icon_slot_list: arcade.SpriteList = arcade.SpriteList()
         self.vault_icon_list: arcade.SpriteList = arcade.SpriteList()
 
-        # Sprite variables
+        # Sprites
         self.player: Player = Player()
         self.cursor_hand: HandCursor = HandCursor()
+
+        # GUI
         self.inventory_window: Inventory = Inventory()
         self.vault_window: Vault = Vault()
-
         self.portrait_frame: PortraitFrame = PortraitFrame()
         self.portrait: Portrait = Portrait()
         self.total_item_stats: dict = {}
@@ -180,7 +180,7 @@ class HomeView(arcade.View):
         if key_pressed == key.X:
             self.generate_test_server_items()
             if self.inventory_window.open:
-                self.inventory_window.position_icons(self.inventory_icon_list)
+                self.inventory_window.display(self.inventory_icon_list)
 
     def on_key_release(self, key_pressed, modifiers):
         if key_pressed == key.LCTRL:
@@ -254,10 +254,9 @@ class HomeView(arcade.View):
                 self.deactivate_all_buttons_windows()
                 button.state = True
                 if button.description == "inventory":
-                    self.inventory_window.display()
-                    self.inventory_window.position_icons(self.inventory_icon_list)
+                    self.inventory_window.display(self.inventory_icon_list)
                 elif button.description == "vault":
-                    self.vault_window.display()
+                    self.vault_window.display(self.vault_icon_list)
                 elif button.description == "trade":
                     print("Trading")
                 elif button.description == "upgrade":
@@ -279,8 +278,8 @@ class HomeView(arcade.View):
 
     def refresh_all_windows(self):
         """Refreshes all active windows with their respective icon positions"""
-        self.inventory_window.refresh(self.inventory_icon_list)
-        self.vault_window.refresh(self.vault_icon_list)
+        self.inventory_window.display(self.inventory_icon_list)
+        self.vault_window.display(self.vault_icon_list)
 
     def inv_or_vault_key_router(self, key_pressed):
         """A key router for inventory or vault"""
@@ -290,14 +289,15 @@ class HomeView(arcade.View):
                 self.deactivate_all_buttons_windows()
             elif [button.state for button in self.right_panel_button_list]:  # type: ignore
                 self.deactivate_all_buttons_windows()
-                self.inventory_window.display()
-                self.inventory_window.position_icons(self.inventory_icon_list)
+                self.inventory_window.display(self.inventory_icon_list)
                 self.right_panel_button_list[0].state = True
 
         if key_pressed == key.V:
-            if [button.state for button in self.right_panel_button_list]:  # type: ignore
+            if self.vault_window.open:
                 self.deactivate_all_buttons_windows()
-                self.vault_window.display()
+            elif [button.state for button in self.right_panel_button_list]:  # type: ignore
+                self.deactivate_all_buttons_windows()
+                self.vault_window.display(self.vault_icon_list)
                 self.right_panel_button_list[1].state = True  # type: ignore
 
     def views_key_router(self, key_pressed):

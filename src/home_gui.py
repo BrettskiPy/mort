@@ -186,22 +186,20 @@ class Vault(arcade.Sprite):
         self.open = open
         self.mapped_carry_positions: dict = self.map_carry_positions()
 
-    def position_icons(self, icon_list):
-        if icon_list:
-            for icon in icon_list:
-                icon.center_x = self.mapped_carry_positions[icon.pos]["x"]
-                icon.center_y = self.mapped_carry_positions[icon.pos]["y"]
-
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
             arcade.draw_rectangle_outline(
                 v["x"], v["y"], v["width"], v["height"], color=color.LAVA
             )
 
-    def display(self):
-        """Displays and positions the vault window"""
+    def display(self, icon_list):
+        """Displays and positions the vault window along with its associated icons"""
         self.open = True
         self.position_vault_window()
+        if icon_list:
+            for icon in icon_list:
+                icon.center_x = self.mapped_carry_positions[icon.pos]["x"]
+                icon.center_y = self.mapped_carry_positions[icon.pos]["y"]
 
     def position_vault_window(self):
         """Positions the vault window"""
@@ -211,10 +209,6 @@ class Vault(arcade.Sprite):
     def deactivate(self):
         """Deactivates the vault window display"""
         self.open = False
-
-    def refresh(self, vault_icon_list):
-        """Refreshes and repositions the current location of the icons within the inventory window"""
-        self.position_icons(vault_icon_list)
 
     def map_carry_positions(self):
         # FIXME This function is trash but works.....
@@ -350,12 +344,6 @@ class Inventory(arcade.Sprite):
         self.mapped_slot_positions: dict = self.map_slot_positions()
         self.total_item_stats = {}
 
-    def position_icons(self, icon_list):
-        if icon_list:
-            for icon in icon_list:
-                icon.center_x = self.mapped_carry_positions[icon.pos]["x"]
-                icon.center_y = self.mapped_carry_positions[icon.pos]["y"]
-
     def display_positions(self):
         for v in self.mapped_carry_positions.values():
             arcade.draw_rectangle_outline(
@@ -367,10 +355,14 @@ class Inventory(arcade.Sprite):
                 v["x"], v["y"], v["width"], v["height"], color=color.RUBY
             )
 
-    def display(self):
-        """Displays and positions the inventory window"""
+    def display(self, icon_list):
+        """Displays and positions the inventory window along with its associated icons"""
         self.open = True
         self.position_inventory_window()
+        if icon_list:
+            for icon in icon_list:
+                icon.center_x = self.mapped_carry_positions[icon.pos]["x"]
+                icon.center_y = self.mapped_carry_positions[icon.pos]["y"]
 
     def position_inventory_window(self):
         """Positions the inventory window"""
