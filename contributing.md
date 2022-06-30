@@ -25,4 +25,4 @@ The Mort repo found here https://github.com/BrettskiPy/mort
 ### General frontend Arcade structure
 Code logic should be bundled within the standard Python Arcade methods. A good place to view these methods 
 can be found here
-![](src/assets/contribution_images/arcade_code_structure.png)
+![](mort/assets/contribution_images/arcade_code_structure.png)
